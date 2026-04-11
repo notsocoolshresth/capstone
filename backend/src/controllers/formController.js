@@ -3,6 +3,10 @@ const FormTemplate = require("../models/FormTemplate");
 const GEN_ADMIN_TEMPLATE_CODE = "gen-admin";
 const GEN_ADMIN_VEHICLE_REQUISITION_CODE = "gen-admin-vehicle-requisition-transport";
 const SECURITY_CAMPUS_LEAVE_FEMALE_CODE = "security-campus-leave-female";
+const SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_CODE = "security-day-scholar-vehicle-permit";
+const SECURITY_MESS_WORKERS_CODE = "security-mess-workers";
+const SECURITY_PASS_RENEWAL_CODE = "security-pass-renewal";
+const SECURITY_ENTRY_PASS_CODE = "security-entry-pass";
 const SECURITY_REQUISITION_FOR_VEHICLE_STICKER_CODE = "security_requisition_for_vehicle_sticker";
 const SECURITY_VEHICLE_STICKER_REQUITION_MARRIED_SCHOLAR_CODE = "security-vehicle-sticker-requition-for-married-scholar";
 const SECURITY_UNDERTAKING_REGARDING_WORKER_CONDUCT_AND_RESPONSIBILITY_CODE =
@@ -13,6 +17,10 @@ const CC_FACULTY_PERFORMA_CODE = "cc-faculty-performa";
 const CC_FACULTY_DECLARATION_CODE = "cc-faculty-declaration";
 const CC_EMAIL_ACCOUNT_REQUEST_CODE = "cc-email-account-request";
 const CC_PROXY_LDAP_REQUEST_CODE = "cc-proxy-ldap-request";
+const CC_RD_RECOMMENDATION_GEM_CODE = "cc-rd-recommendation-gem";
+const CC_RD_TWO_BID_GEM_CODE = "cc-rd-two-bid-gem";
+const ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE = "estb-house-allotment-d-type";
+const ESTB_DEPARTURE_REJOINING_CODE = "estb-departure-rejoining-report";
 
 const GEN_ADMIN_TEMPLATE = {
   code: GEN_ADMIN_TEMPLATE_CODE,
@@ -104,8 +112,8 @@ const SECURITY_CAMPUS_LEAVE_FEMALE_TEMPLATE = {
   ],
   approvalStages: [],
 };
-const ESTB_DEPARTURE_REJOINING_CODE = "estb-departure-rejoining-report";
- 
+
+
 const ESTB_DEPARTURE_REJOINING_TEMPLATE = {
   code: ESTB_DEPARTURE_REJOINING_CODE,
   title: "Departure & Re-joining Report",
@@ -131,6 +139,28 @@ const ESTB_DEPARTURE_REJOINING_TEMPLATE = {
     { label: "Re-joining Emp. No.", name: "rejoiningEmpNo", type: "text", required: false },
     { label: "Re-joining Designation", name: "rejoiningDesignation", type: "text", required: false },
     { label: "Re-joining Department", name: "rejoiningDepartment", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+ 
+const ESTB_HOUSE_ALLOTMENT_D_TYPE_TEMPLATE = {
+  code: ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE,
+  title: "House Allotment Form – D Type Quarters",
+  description: "Establishment house allotment application form for D type quarters.",
+  section: "estb",
+  fields: [
+    { label: "Circular No.", name: "circularNo", type: "text", required: false },
+    { label: "Name", name: "name", type: "text", required: true },
+    { label: "Employee ID", name: "employeeId", type: "text", required: true },
+    { label: "Designation", name: "designation", type: "text", required: true },
+    { label: "Present Level in Pay Matrix (As per 7th CPC)", name: "payMatrixLevel", type: "text", required: false },
+    { label: "Deptt./Section", name: "deptSection", type: "text", required: false },
+    { label: "Date of joining", name: "dateOfJoining", type: "date", required: false },
+    { label: "E-mail", name: "email", type: "text", required: false },
+    { label: "Marital Status", name: "maritalStatus", type: "text", required: false },
+    { label: "Bachelor Accommodation Preferred (Y/N)", name: "bachelorAccommodation", type: "text", required: false },
+    { label: "Quarter Preferences", name: "quarterPreferences", type: "text", required: false },
+    { label: "Present Quarter No./Present Address", name: "presentQuarterAddress", type: "text", required: false },
   ],
   approvalStages: [],
 };
@@ -201,6 +231,90 @@ const SECURITY_UNDERTAKING_REGARDING_WORKER_CONDUCT_AND_RESPONSIBILITY_TEMPLATE 
     { label: "Firm's Name", name: "firmName", type: "text", required: true },
     { label: "Mobile No.", name: "mobileNo", type: "text", required: true },
     { label: "Email id", name: "emailId", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+
+const SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_TEMPLATE = {
+  code: SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_CODE,
+  title: "Day Scholar Vehicle Permit & Parking Permission Form",
+  description: "IIT Patna day scholar vehicle permit and parking permission form for campus entry.",
+  section: "security",
+  fields: [
+    { label: "Name & Roll Number", name: "nameRollNumber", type: "text", required: true },
+    { label: "Mobile Number", name: "mobileNumber", type: "text", required: true },
+    { label: "Institute Email", name: "instituteEmail", type: "text", required: false },
+    { label: "Department", name: "department", type: "text", required: true },
+    { label: "Owner Name", name: "ownerName", type: "text", required: true },
+    { label: "Owner Relationship", name: "ownerRelationship", type: "text", required: false },
+    { label: "Vehicle Registration Number (RC)", name: "vehicleRegNo", type: "text", required: true },
+    { label: "Engine Number", name: "engineNumber", type: "text", required: false },
+    { label: "Chassis Number", name: "chassisNumber", type: "text", required: false },
+    { label: "Type of Vehicle", name: "vehicleType", type: "select", required: true, options: ["Car", "Bike", "Scooter", "Other"] },
+    { label: "Residential Address", name: "residentialAddress", type: "textarea", required: true },
+  ],
+  approvalStages: [],
+};
+
+const SECURITY_MESS_WORKERS_TEMPLATE = {
+  code: SECURITY_MESS_WORKERS_CODE,
+  title: "Mess Worker Initial Entry Form",
+  description: "Request form for entry of mess vendor/workers into IIT Patna campus.",
+  section: "security",
+  fields: [
+    { label: "Hostel Name", name: "hostelName", type: "text", required: true },
+    { label: "Vendor Representative Name", name: "vendorName", type: "text", required: true },
+    { label: "Worker 1 Name", name: "worker1Name", type: "text", required: true },
+    { label: "Worker 1 Aadhar", name: "worker1Aadhar", type: "text", required: true },
+    { label: "Worker 2 Name", name: "worker2Name", type: "text", required: false },
+    { label: "Worker 2 Aadhar", name: "worker2Aadhar", type: "text", required: false },
+    { label: "Worker 3 Name", name: "worker3Name", type: "text", required: false },
+    { label: "Worker 3 Aadhar", name: "worker3Aadhar", type: "text", required: false },
+    { label: "Worker 4 Name", name: "worker4Name", type: "text", required: false },
+    { label: "Worker 4 Aadhar", name: "worker4Aadhar", type: "text", required: false },
+    { label: "Worker 5 Name", name: "worker5Name", type: "text", required: false },
+    { label: "Worker 5 Aadhar", name: "worker5Aadhar", type: "text", required: false },
+    { label: "Worker 6 Name", name: "worker6Name", type: "text", required: false },
+    { label: "Worker 6 Aadhar", name: "worker6Aadhar", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+
+const SECURITY_PASS_RENEWAL_TEMPLATE = {
+  code: SECURITY_PASS_RENEWAL_CODE,
+  title: "Requisition for Renewal of Entry Pass",
+  description: "Renewal of entry pass for Domestic Help/Tutor/Driver/Supplier at IIT Patna.",
+  section: "security",
+  fields: [
+    { label: "Name of the Applicant", name: "applicantName", type: "text", required: true },
+    { label: "Date", name: "date", type: "date", required: false },
+    { label: "Flat No.(s)", name: "flatNo", type: "text", required: false },
+    { label: "Mobile No.", name: "mobileNo", type: "text", required: false },
+    { label: "Pass Number", name: "passNumber", type: "text", required: true },
+    { label: "Name & Mobile No. of the Pass Holder", name: "passHolderNameMobile", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+
+const SECURITY_ENTRY_PASS_TEMPLATE = {
+  code: SECURITY_ENTRY_PASS_CODE,
+  title: "Form for Entry Pass: Domestic Help/Tutor/Driver/Supplier",
+  description: "Requisition form for entry pass for domestic help, tutor, driver or supplier at IIT Patna.",
+  section: "security",
+  fields: [
+    { label: "Name of the Applicant",                   name: "applicantName",           type: "text",  required: true  },
+    { label: "Employee No.",                             name: "employeeNo",              type: "text",  required: false },
+    { label: "Designation",                              name: "designation",             type: "text",  required: false },
+    { label: "Department/Section",                       name: "department",              type: "text",  required: false },
+    { label: "Email id",                                 name: "emailId",                type: "text",  required: false },
+    { label: "Flat No.",                                 name: "flatNo",                 type: "text",  required: false },
+    { label: "Mobile No.",                               name: "mobileNo",               type: "text",  required: false },
+    { label: "Name of Domestic Help/Tutor/Driver/Supplier", name: "helperName",          type: "text",  required: true  },
+    { label: "Aadhar Card/ Photo Id No.",                name: "helperAadhar",           type: "text",  required: false },
+    { label: "Helper Mobile No.",                        name: "helperMobileNo",         type: "text",  required: false },
+    { label: "Visible identification mark",              name: "visibleIdentificationMark", type: "text", required: false },
+    { label: "Employed as",                              name: "employedAs",             type: "text",  required: false },
+    { label: "Campus entry & exit time",                 name: "campusEntryExitTime",    type: "text",  required: false },
   ],
   approvalStages: [],
 };
@@ -386,6 +500,105 @@ const CC_PROXY_LDAP_REQUEST_TEMPLATE = {
   approvalStages: [],
 };
 
+const CC_RD_RECOMMENDATION_GEM_TEMPLATE = {
+  code: CC_RD_RECOMMENDATION_GEM_CODE,
+  title: "R&D cum CC Recommendation for Direct Purchase through GeM",
+  description: "Form No. P002 – Recommendation cum Sanction Sheet for purchase through GeM portal by Local Purchase Committee.",
+  section: "cc",
+  fields: [
+    { label: "Project No. (if applicable)", name: "projectNo", type: "text", required: false },
+    { label: "Date", name: "date", type: "date", required: true },
+    { label: "Item Being Purchased (short name for title line)", name: "itemDescription", type: "text", required: true },
+    { label: "Indent Date", name: "indentDate", type: "date", required: true },
+    { label: "Item Name (as in indent)", name: "indentItemName", type: "text", required: true },
+    { label: "Row 1 – Sr. No.", name: "srNo_1", type: "text", required: false },
+    { label: "Row 1 – Item Description", name: "itemDesc_1", type: "textarea", required: false },
+    { label: "Row 1 – Rate (Rs.)", name: "rate_1", type: "text", required: false },
+    { label: "Row 1 – Quantity", name: "qty_1", type: "text", required: false },
+    { label: "Row 1 – Total Price (Rs.)", name: "totalPrice_1", type: "text", required: false },
+    { label: "Row 2 – Sr. No.", name: "srNo_2", type: "text", required: false },
+    { label: "Row 2 – Item Description", name: "itemDesc_2", type: "textarea", required: false },
+    { label: "Row 2 – Rate (Rs.)", name: "rate_2", type: "text", required: false },
+    { label: "Row 2 – Quantity", name: "qty_2", type: "text", required: false },
+    { label: "Row 2 – Total Price (Rs.)", name: "totalPrice_2", type: "text", required: false },
+    { label: "Total Amount in Words", name: "amountInWords", type: "text", required: true },
+    { label: "Name of Item Recommended for Procurement", name: "recommendedItemName", type: "text", required: true },
+    { label: "Committee Member 1 – Name & Designation", name: "member1Name", type: "text", required: false },
+    { label: "Committee Member 2 – Name & Designation", name: "member2Name", type: "text", required: false },
+    { label: "Committee Member 3 – Name & Designation", name: "member3Name", type: "text", required: false },
+    { label: "Committee Member 4 – Name & Designation", name: "member4Name", type: "text", required: false },
+    { label: "JTS/TS (CC) – Name", name: "jtsName", type: "text", required: false },
+    { label: "HoD (CC) – Name", name: "hodCCName", type: "text", required: false },
+    { label: "Investigator(s) – Name", name: "investigatorName", type: "text", required: false },
+    { label: "AR(R&D) – Name", name: "arRDName", type: "text", required: false },
+    { label: "DR(R&D) – Name", name: "drRDName", type: "text", required: false },
+    { label: "Associate Dean (R&D) – Name", name: "aDeanRDName", type: "text", required: false },
+    { label: "Director – Name", name: "directorName", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+
+
+const CC_RD_TWO_BID_GEM_TEMPLATE = {
+  code: CC_RD_TWO_BID_GEM_CODE,
+  title: "R&D cum CC Recommendation for Two-Bid Purchase through GeM",
+  description: "Form No. P004 – Recommendation cum Sanction Sheet for purchase through GeM using Double Bid Tendering process.",
+  section: "cc",
+  fields: [
+    { label: "Project No. (if applicable)", name: "projectNo", type: "text", required: false },
+    { label: "Date", name: "date", type: "date", required: true },
+    { label: "Purchase Of (item name for title)", name: "purchaseOf", type: "text", required: true },
+    { label: "Supply Item Name (for quotation line)", name: "supplyItem", type: "text", required: true },
+    { label: "GeM Bid Reference No.", name: "gemBidRef", type: "text", required: true },
+    { label: "GeM Bid Date", name: "gemBidDate", type: "date", required: true },
+    { label: "Number of Vendors Responded", name: "vendorCount", type: "text", required: true },
+    { label: "No. of Technically Satisfied Firms", name: "techFirmsCount", type: "text", required: true },
+    { label: "Price Bids Opened On Date", name: "openedOnDate", type: "date", required: true },
+    { label: "Annexure No.", name: "annexureNo", type: "text", required: false },
+    { label: "Order For Item (committee recommends)", name: "orderForItem", type: "text", required: true },
+    { label: "Vendor M/s Name (lowest quoter)", name: "vendorMsName", type: "text", required: true },
+    { label: "File No.", name: "fileNo", type: "text", required: false },
+    { label: "Year of Sanction", name: "yearOfSanction", type: "text", required: false },
+    { label: "Department", name: "department", type: "text", required: true },
+    { label: "Category", name: "category", type: "text", required: false },
+    { label: "Vendor Label (e.g. Vendor-1:)", name: "vendorLabel", type: "text", required: false },
+    { label: "Vendor Name (M/s)", name: "vendorName", type: "text", required: true },
+    { label: "Vendor Address Line 1", name: "vendorAddr1", type: "text", required: false },
+    { label: "Vendor Address Line 2", name: "vendorAddr2", type: "text", required: false },
+    { label: "Item 1 Description", name: "item1Desc", type: "textarea", required: false },
+    { label: "Item 1 Rate", name: "item1Rate", type: "text", required: false },
+    { label: "Item 1 Quantity", name: "item1Qty", type: "text", required: false },
+    { label: "Item 1 Amount", name: "item1Amount", type: "text", required: false },
+    { label: "Item 2 Description", name: "item2Desc", type: "textarea", required: false },
+    { label: "Item 2 Rate", name: "item2Rate", type: "text", required: false },
+    { label: "Item 2 Quantity", name: "item2Qty", type: "text", required: false },
+    { label: "Item 2 Amount", name: "item2Amount", type: "text", required: false },
+    { label: "Item 3 Description", name: "item3Desc", type: "textarea", required: false },
+    { label: "Item 3 Rate", name: "item3Rate", type: "text", required: false },
+    { label: "Item 3 Quantity", name: "item3Qty", type: "text", required: false },
+    { label: "Item 3 Amount", name: "item3Amount", type: "text", required: false },
+    { label: "Extra Row 1 Label", name: "extraRow1Label", type: "text", required: false },
+    { label: "Extra Row 1 Amount", name: "extraRow1Amount", type: "text", required: false },
+    { label: "Extra Row 2 Label", name: "extraRow2Label", type: "text", required: false },
+    { label: "Extra Row 2 Amount", name: "extraRow2Amount", type: "text", required: false },
+    { label: "GST Percentage (%)", name: "gstPercent", type: "text", required: false },
+    { label: "GST Amount", name: "gstAmount", type: "text", required: false },
+    { label: "Total Amount", name: "totalAmount", type: "text", required: true },
+    { label: "Committee Member 1 - Name & Designation", name: "member1Name", type: "text", required: false },
+    { label: "Committee Member 2 - Name & Designation", name: "member2Name", type: "text", required: false },
+    { label: "Committee Member 3 - Name & Designation", name: "member3Name", type: "text", required: false },
+    { label: "Committee Member 4 - Name & Designation", name: "member4Name", type: "text", required: false },
+    { label: "JTS/TS (CC) - Name", name: "jtsName", type: "text", required: false },
+    { label: "HoD (CC) - Name", name: "hodCCName", type: "text", required: false },
+    { label: "Investigator(s) - Name", name: "investigatorName", type: "text", required: false },
+    { label: "AR(R&D) - Name", name: "arRDName", type: "text", required: false },
+    { label: "DR(R&D) - Name", name: "drRDName", type: "text", required: false },
+    { label: "Associate Dean (R&D) - Name", name: "aDeanRDName", type: "text", required: false },
+    { label: "Director - Name", name: "directorName", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+
 const getGenAdminTemplate = async (req, res) => {
   try {
     let template = await FormTemplate.findOne({ code: GEN_ADMIN_TEMPLATE_CODE });
@@ -437,6 +650,64 @@ const getSecurityCampusLeaveTemplate = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Failed to load security campus leave template" });
+  }
+};
+
+const getSecurityDayScholarVehiclePermitTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_CODE });
+    if (!template) {
+      template = await FormTemplate.create({
+        ...SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_TEMPLATE,
+        createdBy: req.user.id,
+      });
+    }
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load security day scholar vehicle permit template" });
+  }
+};
+
+const getSecurityMessWorkersTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: SECURITY_MESS_WORKERS_CODE });
+    if (!template) {
+      template = await FormTemplate.create({
+        ...SECURITY_MESS_WORKERS_TEMPLATE,
+        createdBy: req.user.id,
+      });
+    }
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load security mess workers template" });
+  }
+};
+
+const getSecurityPassRenewalTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: SECURITY_PASS_RENEWAL_CODE });
+    if (!template) {
+      template = await FormTemplate.create({ ...SECURITY_PASS_RENEWAL_TEMPLATE, createdBy: req.user.id });
+    }
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load security pass renewal template" });
+  }
+};
+
+const getSecurityEntryPassTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: SECURITY_ENTRY_PASS_CODE });
+    if (!template) {
+      template = await FormTemplate.create({ ...SECURITY_ENTRY_PASS_TEMPLATE, createdBy: req.user.id });
+    }
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load security entry pass template" });
   }
 };
 
@@ -536,6 +807,21 @@ const getEstbDepartureRejoiningTemplate = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Failed to load departure/rejoining template" });
+  }
+};
+const getEstbHouseAllotmentDTypeTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE });
+    if (!template) {
+      template = await FormTemplate.create({
+        ...ESTB_HOUSE_ALLOTMENT_D_TYPE_TEMPLATE,
+        createdBy: req.user.id,
+      });
+    }
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load house allotment template" });
   }
 };
 
@@ -638,6 +924,38 @@ const getComputerCenterProxyLdapRequestTemplate = async (req, res) => {
   }
 };
 
+const getComputerCenterRDRecommendationGeMTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: CC_RD_RECOMMENDATION_GEM_CODE });
+
+    if (!template) {
+      template = await FormTemplate.create({
+        ...CC_RD_RECOMMENDATION_GEM_TEMPLATE,
+        createdBy: req.user.id,
+      });
+    }
+
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load CC R&D recommendation GeM template" });
+  }
+};
+
+
+const getComputerCenterRDTwoBidGeMTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: CC_RD_TWO_BID_GEM_CODE });
+    if (!template) {
+      template = await FormTemplate.create({ ...CC_RD_TWO_BID_GEM_TEMPLATE, createdBy: req.user.id });
+    }
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load CC R&D two-bid GeM template" });
+  }
+};
+
 // @desc Create new form template
 const createTemplate = async (req, res) => {
   try {
@@ -677,13 +995,34 @@ const getAllTemplates = async (req, res) => {
     // Ensure Security Campus Leave (Female) template exists
     let securityCampusLeaveTemplate = await FormTemplate.findOne({ code: SECURITY_CAMPUS_LEAVE_FEMALE_CODE });
     if (!securityCampusLeaveTemplate) {
-      await FormTemplate.create({
-        ...SECURITY_CAMPUS_LEAVE_FEMALE_TEMPLATE,
-        createdBy: req.user?.id || null,
-      });
+      await FormTemplate.create({ ...SECURITY_CAMPUS_LEAVE_FEMALE_TEMPLATE, createdBy: req.user?.id || null });
     }
 
-    // Ensure Security requisition for vehicle sticker template exists
+    // Ensure Security Day Scholar Vehicle Permit template exists
+    let securityDsVehicleTemplate = await FormTemplate.findOne({ code: SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_CODE });
+    if (!securityDsVehicleTemplate) {
+      await FormTemplate.create({ ...SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_TEMPLATE, createdBy: req.user?.id || null });
+    }
+
+    // Ensure Security Mess Workers template exists
+    let securityMessWorkersTemplate = await FormTemplate.findOne({ code: SECURITY_MESS_WORKERS_CODE });
+    if (!securityMessWorkersTemplate) {
+      await FormTemplate.create({ ...SECURITY_MESS_WORKERS_TEMPLATE, createdBy: req.user?.id || null });
+    }
+
+    // Ensure Security Pass Renewal template exists
+    let securityPassRenewalTemplate = await FormTemplate.findOne({ code: SECURITY_PASS_RENEWAL_CODE });
+    if (!securityPassRenewalTemplate) {
+      await FormTemplate.create({ ...SECURITY_PASS_RENEWAL_TEMPLATE, createdBy: req.user?.id || null });
+    }
+
+    // Ensure Security Entry Pass template exists
+    let securityEntryPassTemplate = await FormTemplate.findOne({ code: SECURITY_ENTRY_PASS_CODE });
+    if (!securityEntryPassTemplate) {
+      await FormTemplate.create({ ...SECURITY_ENTRY_PASS_TEMPLATE, createdBy: req.user?.id || null });
+    }
+
+        // Ensure Security requisition for vehicle sticker template exists
     let securityRequisitionForVehicleStickerTemplate = await FormTemplate.findOne({
       code: SECURITY_REQUISITION_FOR_VEHICLE_STICKER_CODE,
     });
@@ -716,7 +1055,7 @@ const getAllTemplates = async (req, res) => {
       });
     }
 
-    // Ensure Computer Center LDAP account request template exists
+        // Ensure Computer Center LDAP account request template exists
     let ccLdapTemplate = await FormTemplate.findOne({ code: CC_LDAP_ACCOUNT_REQUEST_CODE });
     if (!ccLdapTemplate) {
       await FormTemplate.create({
@@ -725,14 +1064,14 @@ const getAllTemplates = async (req, res) => {
       });
     }
     let estbDepartureTemplate = await FormTemplate.findOne({ code: ESTB_DEPARTURE_REJOINING_CODE });
-if (!estbDepartureTemplate) {
-  await FormTemplate.create({
-    ...ESTB_DEPARTURE_REJOINING_TEMPLATE,
-    createdBy: req.user?.id || null,
-  });
-}
-
-    // Ensure General Administration vehicle requisition template exists
+    if (!estbDepartureTemplate) {
+      await FormTemplate.create({
+        ...ESTB_DEPARTURE_REJOINING_TEMPLATE,
+        createdBy: req.user?.id || null,
+      });
+    }
+    
+        // Ensure General Administration vehicle requisition template exists
     let genAdminVehicleRequisitionTemplate = await FormTemplate.findOne({ code: GEN_ADMIN_VEHICLE_REQUISITION_CODE });
     if (!genAdminVehicleRequisitionTemplate) {
       await FormTemplate.create({
@@ -752,7 +1091,7 @@ if (!estbDepartureTemplate) {
       });
     }
 
-    // Ensure Computer Center Faculty Performa template exists
+        // Ensure Computer Center Faculty Performa template exists
     let ccFacultyPerformaTemplate = await FormTemplate.findOne({ code: CC_FACULTY_PERFORMA_CODE });
     if (!ccFacultyPerformaTemplate) {
       await FormTemplate.create({
@@ -761,7 +1100,7 @@ if (!estbDepartureTemplate) {
       });
     }
 
-    // Ensure Computer Center Faculty Declaration template exists
+        // Ensure Computer Center Faculty Declaration template exists
     let ccFacultyDeclarationTemplate = await FormTemplate.findOne({ code: CC_FACULTY_DECLARATION_CODE });
     if (!ccFacultyDeclarationTemplate) {
       await FormTemplate.create({
@@ -779,7 +1118,7 @@ if (!estbDepartureTemplate) {
       });
     }
 
-    // Ensure Computer Center Proxy LDAP Request template exists
+        // Ensure Computer Center Proxy LDAP Request template exists
     let ccProxyLdapRequestTemplate = await FormTemplate.findOne({ code: CC_PROXY_LDAP_REQUEST_CODE });
     if (!ccProxyLdapRequestTemplate) {
       await FormTemplate.create({
@@ -787,6 +1126,29 @@ if (!estbDepartureTemplate) {
         createdBy: req.user?.id || null,
       });
     }
+
+    let ccRdRecommendationGeMTemplate = await FormTemplate.findOne({ code: CC_RD_RECOMMENDATION_GEM_CODE });
+    if (!ccRdRecommendationGeMTemplate) {
+      await FormTemplate.create({
+        ...CC_RD_RECOMMENDATION_GEM_TEMPLATE,
+        createdBy: req.user?.id || null,
+      });
+    }
+
+    let ccRdTwoBidGeMTemplate = await FormTemplate.findOne({ code: CC_RD_TWO_BID_GEM_CODE });
+    if (!ccRdTwoBidGeMTemplate) {
+      await FormTemplate.create({
+        ...CC_RD_TWO_BID_GEM_TEMPLATE,
+        createdBy: req.user?.id || null,
+      });
+    }
+   let estbHouseAllotmentTemplate = await FormTemplate.findOne({ code: ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE });
+if (!estbHouseAllotmentTemplate) {
+  await FormTemplate.create({
+    ...ESTB_HOUSE_ALLOTMENT_D_TYPE_TEMPLATE,
+    createdBy: req.user?.id || null,
+  });
+}
 
     const templates = await FormTemplate.find()
       .populate("createdBy", "name email")
@@ -819,14 +1181,21 @@ module.exports = {
   getGenAdminTemplate,
   getGenAdminVehicleRequisitionTemplate,
   getSecurityCampusLeaveTemplate,
+  getSecurityDayScholarVehiclePermitTemplate,
+  getSecurityMessWorkersTemplate,
+  getSecurityPassRenewalTemplate,
+  getSecurityEntryPassTemplate,
   getSecurityRequisitionForVehicleStickerTemplate,
   getSecurityVehicleStickerRequitionForMarriedScholarTemplate,
   getSecurityUndertakingRegardingWorkerConductAndResponsibilityTemplate,
   getComputerCenterLdapAccountRequestTemplate,
-   getEstbDepartureRejoiningTemplate,
+  getEstbDepartureRejoiningTemplate,
+  getEstbHouseAllotmentDTypeTemplate,
   getFinanceProcurementRecommendationSanctionTemplate,
   getComputerCenterFacultyPerformaTemplate,
   getComputerCenterFacultyDeclarationTemplate,
   getComputerCenterEmailAccountRequestTemplate,
   getComputerCenterProxyLdapRequestTemplate,
+  getComputerCenterRDRecommendationGeMTemplate,
+  getComputerCenterRDTwoBidGeMTemplate,
 };

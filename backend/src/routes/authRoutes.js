@@ -7,6 +7,7 @@ const {
   generateProfilePdf,
   forgotPassword,
   resetPassword,
+  changePassword,
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -28,5 +29,8 @@ router.post("/forgot-password", forgotPassword);
 
 // RESET PASSWORD
 router.post("/reset-password/:token", resetPassword);
+
+// CHANGE PASSWORD (Protected)
+router.post("/change-password", protect, changePassword);
 
 module.exports = router;

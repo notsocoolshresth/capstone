@@ -132,18 +132,15 @@ async function processRows(jobId, rows) {
     const result = { row: rowNum, name: row.name || "", email: row.email || "" };
 
     try {
-      const { name, email, password, role } = row;
+      const { name, email, role } = row;
+      const password = row.password && row.password.trim() ? row.password.trim() : "password";
 
-      if (!name || !email || !password) {
-        throw new Error("Missing required fields – CSV columns must be: name, email, password, role");
+      if (!name || !email) {
+        throw new Error("Missing required fields – CSV columns must be: name, email, role");
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         throw new Error("Invalid email format");
-      }
-
-      if (password.length < 6) {
-        throw new Error("Password must be at least 6 characters");
       }
 
       const normalizedRole = role

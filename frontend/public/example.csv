@@ -1,0 +1,7 @@
+name,email,password,role
+Jane Smith,jane@college.edu,pass123,Faculty
+Bob Dean,bob@college.edu,pass123,HOD
+Jonny Smith,jonny@college.edu,pass123,Faculty
+Bobby Deol,bobbydeol@college.edu,pass123,HOD
+
+// the password column is optional — if not provided, the default password "password" will be assigned. remove this line if trying to bulk import

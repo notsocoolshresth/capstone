@@ -1,5 +1,5 @@
-name,email,password,role
-Jane Smith,jane@college.edu,secret123,Faculty
-Bob Dean,bob@college.edu,pass456,HOD
-Jonny Smith,jonny@college.edu,secret123,Faculty
-Bobby Deol,bobbydeol@college.edu,pass456,HOD
+name,email,role 
+Jane Smith,jane+bbcd@college.edu,Faculty
+Bob Dean,bob+gog.led@college.edu,HOD
+Jonny Smith,jonny+micro.softd@college.edu,Faculty
+Bobby Deol,bobbydeol+apple.comd@college.edu,HOD

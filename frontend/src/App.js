@@ -6,20 +6,28 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import BulkImport from "./pages/BulkImport";
+import ChangePassword from "./pages/ChangePassword";
 import Forms from "./pages/Forms";
 import FormFill from "./pages/FormFill";
 import GenAdminForm from "./forms/genadmin/GenAdminForm";  // self declaration form 
 import VehicleRequisitionForTransportForm from "./forms/genadmin/VehicleRequisitionForTransportForm";
 import SecurityCampusLeavePermissionForFemaleStudents from "./forms/security/SecurityCampusLeavePermissionForFemaleStudents";
+import SecurityDayScholarVehiclePermit from "./forms/security/SecurityDayScholarVehiclePermit";
+import SecurityMessWorkers from "./forms/security/SecurityMessWorkers";
+import SecurityPassRenewal from "./forms/security/SecurityPassRenewal";
+import SecurityRequisitionForEntryPass from "./forms/security/SecurityRequisitionForEntryPass";
 import SecurityRequisitionForVehicleSticker from "./forms/security/SecurityRequisitionForVehicleSticker";
 import SecurityVehicleStickerRequitionForMarriedScholar from "./forms/security/SecurityVehicleStickerRequitionForMarriedScholar";
 import SecurityUndertakingRegardingWorkerConductAndResponsibility from "./forms/security/SecurityUndertakingRegardingWorkerConductAndResponsibility";
 import ComputerCenterLdapAccountRequestForm from "./forms/cc/ComputerCenterLdapAccountRequestForm";
 import EstbDepartureRejoiningReportForm from "./forms/estb/EstbDepartureRejoiningReportForm";
+import EstbHouseAllotmentDTypeForm from "./forms/estb/EstbHouseAllotmentDTypeForm";
 import ComputerCenterFacultyPerformaForm from "./forms/cc/ComputerCenterFacultyPerformaForm";
 import ComputerCenterFacultyDeclarationForm from "./forms/cc/ComputerCenterFacultyDeclarationForm";
 import ComputerCenterEmailAccountRequestForm from "./forms/cc/ComputerCenterEmailAccountRequestForm";
 import ComputerCenterProxyLdapAccountRequestForm from "./forms/cc/ComputerCenterProxyLdapAccountRequestForm";
+import ComputerCenterRDRecommendationGeM from "./forms/cc/CCRDRecommendationDirectPurchaseGeM";
+import ComputerCenterRDTwoBidGeM from "./forms/cc/CCRDRecommendationTwoBidPurchaseGeM";
 import FinanceProcurementRecommendationSanctionForm from "./forms/fin/RecommendationCumSanctionSheetForPurchaseDoubleBidInrForm";
 import Submissions from "./pages/Submissions";
 import Approvals from "./pages/Approvals";
@@ -106,6 +114,16 @@ function App() {
           }
         />
         <Route
+          path="/forms/security-day-scholar-vehicle-permit"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <SecurityDayScholarVehiclePermit />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/forms/security_requisition_for_vehicle_sticker"
           element={
             <PrivateRoute>
@@ -116,11 +134,41 @@ function App() {
           }
         />
         <Route
+          path="/forms/security-mess-workers"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <SecurityMessWorkers />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/forms/security-vehicle-sticker-requition-for-married-scholar"
           element={
             <PrivateRoute>
               <Layout>
                 <SecurityVehicleStickerRequitionForMarriedScholar />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/security-pass-renewal"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <SecurityPassRenewal />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/security-entry-pass"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <SecurityRequisitionForEntryPass />
               </Layout>
             </PrivateRoute>
           }
@@ -175,6 +223,16 @@ function App() {
     </PrivateRoute>
   }
 />
+<Route
+  path="/forms/estb-house-allotment-d-type"
+  element={
+    <PrivateRoute>
+      <Layout>
+        <EstbHouseAllotmentDTypeForm />
+      </Layout>
+    </PrivateRoute>
+  }
+/>
         <Route
           path="/forms/cc-faculty-performa"
           element={
@@ -216,6 +274,46 @@ function App() {
           }
         />
         <Route
+          path="/forms/cc-rd-recommendation-gem"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ComputerCenterRDRecommendationGeM />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/computer-center-rd-recommendation-gem"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ComputerCenterRDRecommendationGeM />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/cc-rd-two-bid-gem"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ComputerCenterRDTwoBidGeM />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/computer-center-rd-two-bid-gem"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ComputerCenterRDTwoBidGeM />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/forms/:templateId/fill"
           element={
             <PrivateRoute>
@@ -241,6 +339,16 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <Approvals />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ChangePassword />
               </Layout>
             </PrivateRoute>
           }

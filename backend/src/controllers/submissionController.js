@@ -5,6 +5,10 @@ const PDFDocument = require("pdfkit");
 const { renderGenAdminPdf } = require("../forms/genadmin/pdfGenerator");
 const { renderGenAdminVehicleRequisitionPdf } = require("../forms/genadmin/VehicleRequisitionForTransport");
 const { renderSecurityCampusLeavePermissionForFemaleStudentsPdf } = require("../forms/security/SecurityCampusLeavePermissionForFemaleStudents");
+const { renderSecurityDayScholarVehiclePermitPdf } = require("../forms/security/SecurityDayScholarVehiclePermit");
+const { renderSecurityMessWorkersPdf } = require("../forms/security/SecurityMessWorkers");
+const { renderSecurityPassRenewalPdf } = require("../forms/security/SecurityPassRenewal");
+const { renderSecurityRequisitionForEntryPassPdf } = require("../forms/security/SecurityRequisitionForEntryPass");
 const { renderSecurityRequisitionForVehicleStickerPdf } = require("../forms/security/SecurityRequisitionForVehicleSticker");
 const { renderSecurityVehicleStickerRequitionForMarriedScholarPdf } = require("../forms/security/SecurityVehicleStickerRequitionForMarriedScholar");
 const {
@@ -12,27 +16,37 @@ const {
 } = require("../forms/security/SecurityUndertakingRegardingWorkerConductAndResponsibility");
 const { renderComputerCenterRequestingLdapAccountPdf } = require("../forms/cc/ComputerCenterRequestingLdapAccountCreationOfProjectStaffTemporaryStaff");
 const { renderEstbDepartureRejoiningReportPdf } = require("../forms/estb/renderEstbDepartureRejoiningReportPdf");
+const { renderEstbHouseAllotmentDTypePdf } = require("../forms/estb/renderEstbHouseAllotmentDTypePdf");
 const { renderFinanceProcurementRecommendationSanctionPdf } = require("../forms/fin/RecommendationCumSanctionSheetForPurchaseDoubleBidInr");
 const { renderComputerCenterFacultyPerformaPdf } = require("../forms/cc/ComputerCenterFacultyPerformaForm");
 const { renderComputerCenterFacultyDeclarationPdf } = require("../forms/cc/ComputerCenterFacultyDeclarationForm");
 const { renderComputerCenterEmailAccountRequestPdf } = require("../forms/cc/ComputerCenterEmailAccountRequestForm");
 const { renderComputerCenterProxyLdapAccountRequestPdf } = require("../forms/cc/ComputerCenterProxyLdapAccountRequestForm");
+const { renderCCRDRecommendationDirectPurchaseGeMPdf } = require("../forms/cc/CCRDRecommendationDirectPurchaseGeM");
+const { renderCCRDRecommendationTwoBidPurchaseGeMPdf } = require("../forms/cc/CCRDRecommendationTwoBidPurchaseGeM");
 const { getResponseValue } = require("../utils/pdfUtils");
 
 const GEN_ADMIN_TEMPLATE_CODE = "gen-admin";
 const GEN_ADMIN_VEHICLE_REQUISITION_CODE = "gen-admin-vehicle-requisition-transport";
 const SECURITY_CAMPUS_LEAVE_FEMALE_CODE = "security-campus-leave-female";
+const SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_CODE = "security-day-scholar-vehicle-permit";
+const SECURITY_MESS_WORKERS_CODE = "security-mess-workers";
+const SECURITY_PASS_RENEWAL_CODE = "security-pass-renewal";
+const SECURITY_ENTRY_PASS_CODE = "security-entry-pass";
 const SECURITY_REQUISITION_FOR_VEHICLE_STICKER_CODE = "security_requisition_for_vehicle_sticker";
 const SECURITY_VEHICLE_STICKER_REQUITION_MARRIED_SCHOLAR_CODE = "security-vehicle-sticker-requition-for-married-scholar";
 const SECURITY_UNDERTAKING_REGARDING_WORKER_CONDUCT_AND_RESPONSIBILITY_CODE =
   "security_undertaking_regarding_worker_conduct_and_responsibility";
 const CC_LDAP_ACCOUNT_REQUEST_CODE = "cc-ldap-account-request";
 const ESTB_DEPARTURE_REJOINING_CODE = "estb-departure-rejoining-report";
+const ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE = "estb-house-allotment-d-type";
 const FINANCE_PROCUREMENT_RECOMMENDATION_SANCTION_CODE = "finance-procurement-recommendation-sanction-double-bid-inr";
 const CC_FACULTY_PERFORMA_CODE = "cc-faculty-performa";
 const CC_FACULTY_DECLARATION_CODE = "cc-faculty-declaration";
 const CC_EMAIL_ACCOUNT_REQUEST_CODE = "cc-email-account-request";
 const CC_PROXY_LDAP_REQUEST_CODE = "cc-proxy-ldap-request";
+const CC_RD_RECOMMENDATION_GEM_CODE = "cc-rd-recommendation-gem";
+const CC_RD_TWO_BID_GEM_CODE = "cc-rd-two-bid-gem";
 
 // @desc Submit a form
 // Body: { templateId, responses, parentSubmissionId? }
@@ -267,6 +281,10 @@ const generateSubmissionPDF = async (req, res) => {
     const isGenAdmin = templateCode === GEN_ADMIN_TEMPLATE_CODE;
     const isGenAdminVehicleRequisition = templateCode === GEN_ADMIN_VEHICLE_REQUISITION_CODE;
     const isSecurityCampusLeaveFemale = templateCode === SECURITY_CAMPUS_LEAVE_FEMALE_CODE;
+    const isSecurityDayScholarVehiclePermit = templateCode === SECURITY_DAY_SCHOLAR_VEHICLE_PERMIT_CODE;
+    const isSecurityMessWorkers = templateCode === SECURITY_MESS_WORKERS_CODE;
+    const isSecurityPassRenewal = templateCode === SECURITY_PASS_RENEWAL_CODE;
+    const isSecurityEntryPass = templateCode === SECURITY_ENTRY_PASS_CODE;
     const isSecurityRequisitionForVehicleSticker = templateCode === SECURITY_REQUISITION_FOR_VEHICLE_STICKER_CODE;
     const isSecurityVehicleStickerRequitionForMarriedScholar =
       templateCode === SECURITY_VEHICLE_STICKER_REQUITION_MARRIED_SCHOLAR_CODE;
@@ -274,12 +292,16 @@ const generateSubmissionPDF = async (req, res) => {
       templateCode === SECURITY_UNDERTAKING_REGARDING_WORKER_CONDUCT_AND_RESPONSIBILITY_CODE;
     const isComputerCenterLdapRequest = templateCode === CC_LDAP_ACCOUNT_REQUEST_CODE;
     const isEstbDepartureRejoining = templateCode === ESTB_DEPARTURE_REJOINING_CODE;
+const isEstbHouseAllotmentDType = templateCode === ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE;
     const isFinanceProcurementRecommendationSanction =
       templateCode === FINANCE_PROCUREMENT_RECOMMENDATION_SANCTION_CODE;
     const isComputerCenterFacultyPerforma = templateCode === CC_FACULTY_PERFORMA_CODE;
     const isComputerCenterFacultyDeclaration = templateCode === CC_FACULTY_DECLARATION_CODE;
     const isComputerCenterEmailAccountRequest = templateCode === CC_EMAIL_ACCOUNT_REQUEST_CODE;
     const isComputerCenterProxyLdapRequest = templateCode === CC_PROXY_LDAP_REQUEST_CODE;
+    const isCCRDRecommendationGeM = templateCode === CC_RD_RECOMMENDATION_GEM_CODE;
+    const isCCRDTwoBidGeM = templateCode === CC_RD_TWO_BID_GEM_CODE;
+
     const doc = new PDFDocument({
       margin: isGenAdmin
         ? 70
@@ -288,6 +310,7 @@ const generateSubmissionPDF = async (req, res) => {
         : isFinanceProcurementRecommendationSanction ||
           isSecurityRequisitionForVehicleSticker ||
           isSecurityVehicleStickerRequitionForMarriedScholar
+        
         ? 45
         : 50,
       size: "A4",
@@ -307,6 +330,14 @@ const generateSubmissionPDF = async (req, res) => {
       renderGenAdminVehicleRequisitionPdf(doc, submission);
     } else if (isSecurityCampusLeaveFemale) {
       renderSecurityCampusLeavePermissionForFemaleStudentsPdf(doc, submission);
+      } else if (isSecurityDayScholarVehiclePermit) {
+      renderSecurityDayScholarVehiclePermitPdf(doc, submission);
+    } else if (isSecurityMessWorkers) {
+      renderSecurityMessWorkersPdf(doc, submission);
+    } else if (isSecurityPassRenewal) {
+      renderSecurityPassRenewalPdf(doc, submission);
+    } else if (isSecurityEntryPass) {
+      renderSecurityRequisitionForEntryPassPdf(doc, submission);
     } else if (isSecurityRequisitionForVehicleSticker) {
       renderSecurityRequisitionForVehicleStickerPdf(doc, submission);
     } else if (isSecurityVehicleStickerRequitionForMarriedScholar) {
@@ -317,7 +348,9 @@ const generateSubmissionPDF = async (req, res) => {
       renderComputerCenterRequestingLdapAccountPdf(doc, submission);
     } else if (isEstbDepartureRejoining) {
       renderEstbDepartureRejoiningReportPdf(doc, submission);
-    } else if (isFinanceProcurementRecommendationSanction) {
+    } else if (isEstbHouseAllotmentDType) {
+      renderEstbHouseAllotmentDTypePdf(doc, submission);
+    }else if (isFinanceProcurementRecommendationSanction) {
       renderFinanceProcurementRecommendationSanctionPdf(doc, submission);
     } else if (isComputerCenterFacultyPerforma) {
       renderComputerCenterFacultyPerformaPdf(doc, submission);
@@ -327,6 +360,10 @@ const generateSubmissionPDF = async (req, res) => {
       renderComputerCenterEmailAccountRequestPdf(doc, submission);
     } else if (isComputerCenterProxyLdapRequest) {
       renderComputerCenterProxyLdapAccountRequestPdf(doc, submission);
+    } else if (isCCRDRecommendationGeM) {
+      renderCCRDRecommendationDirectPurchaseGeMPdf(doc, submission);
+    } else if (isCCRDTwoBidGeM) {
+      renderCCRDRecommendationTwoBidPurchaseGeMPdf(doc, submission);
     } else {
       // Header (logo placeholder + institute title)
       doc

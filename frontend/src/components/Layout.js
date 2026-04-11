@@ -123,6 +123,9 @@ const Layout = ({ children }) => {
                   <MenuItem onClick={() => { setAnchorEl(null); navigate("/dashboard"); }}>
                     Dashboard
                   </MenuItem>
+                  <MenuItem onClick={() => { setAnchorEl(null); navigate("/change-password"); }}>
+                    Change Password
+                  </MenuItem>
                   <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
                     Logout
                   </MenuItem>

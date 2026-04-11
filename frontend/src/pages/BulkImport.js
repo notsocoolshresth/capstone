@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+
 import {
   Container,
   Typography,
@@ -225,14 +226,27 @@ const BulkImport = () => {
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             Upload a CSV file with columns:{" "}
-            <code>name, email, password, role</code>. Role defaults to{" "}
-            <em>Faculty</em> if omitted. Allowed roles: Faculty, HOD, Dean,
-            Director, Admin.
+            <code>name, email, role</code>. Role defaults to{" "}
+            <em>Faculty</em> if omitted. The <code>password</code> column is
+            optional — if not provided, the default password{" "}
+            <code>"password"</code> will be assigned. Allowed roles: Faculty,
+            HOD, Dean, Director, Admin.
           </Typography>
         </Box>
-        <Button variant="text" onClick={() => navigate("/dashboard")}>
-          ← Dashboard
-        </Button>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Button
+            variant="outlined"
+            size="small"
+            component="a"
+            href="/example.csv"
+            download="example.csv"
+          >
+            ⬇ Download Sample CSV
+          </Button>
+          <Button variant="text" onClick={() => navigate("/dashboard")}>
+            ← Dashboard
+          </Button>
+        </Box>
       </Box>
 
       {/* Upload card */}

@@ -8,10 +8,9 @@ const renderEstbDepartureRejoiningReportPdf = (doc, submission) => {
   // --- 1. ASSETS ---
   const assetsPath = path.join(__dirname, "../../assets");
   const FONT_PATH = path.join(assetsPath, "NotoSansDevanagari.ttf"); 
-  const logoPath = path.join(assetsPath, "iitp-logo.png");
+  // logoPath is no longer needed
 
   const fontExists = fs.existsSync(FONT_PATH);
-  const logoExists = fs.existsSync(logoPath);
 
   if (fontExists) {
     doc.registerFont("HindiFont", FONT_PATH);
@@ -44,18 +43,15 @@ const renderEstbDepartureRejoiningReportPdf = (doc, submission) => {
   };
 
   const drawHeader = (y, title) => {
-    if (logoExists) {
-      doc.image(logoPath, leftMargin + 5, y + 2, { width: 42 });
-    }
+    // --- LOGO CODE REMOVED PER INSTRUCTION ---
+    
     if (fontExists) {
       doc.font("HindiFont").fontSize(14)
          .text("भारतीय प्रौद्योगिकी संस्थान पटना", leftMargin, y + 5, { width: pageWidth, align: "center" });
     }
-    // Main Institution Header
     doc.font("Helvetica-Bold").fontSize(14)
        .text("INDIAN INSTITUTE OF TECHNOLOGY PATNA", leftMargin, y + 23, { width: pageWidth, align: "center" });
     
-    // Updated: Now uses Helvetica-Bold to match the main header font style
     doc.font("Helvetica-Bold").fontSize(12)
        .text(title.toUpperCase(), leftMargin, y + 42, { width: pageWidth, align: "center", underline: true });
 
