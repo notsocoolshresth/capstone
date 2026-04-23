@@ -35,7 +35,7 @@ const FALLBACK_TEMPLATES = [
 const SECTION_TITLES = {
   genAdmin: "General Administration",
   fac: "Faculty Affairs",
-  snp: "Student Affairs",
+  snp: "Stores and Purchase",
   cc: "Computer Center",
   fin:"Finance",
   estb: "Establishment",
@@ -67,7 +67,7 @@ const resolveSection = (template) => {
   if (section.includes("finance") || code.includes("finance")) return "fin";
 if (section.includes("estb") || code.includes("estb") || section.includes("establishment")) return "estb";  if (section.includes("security") || code.includes("security")) return "security";
 
-  if (section.includes("student") || code.includes("student")) return "snp";
+  if (section.includes("store") || code.includes("store") || code.includes("purchase") || code.includes("snp")) return "snp";
   if (section === "fin" || section.includes("finance") || code.includes("finance")) return "fin";
 
   if (section.includes("security") || code.includes("security")) return "security";

@@ -22,6 +22,7 @@ const CC_RD_RECOMMENDATION_GEM_CODE = "cc-rd-recommendation-gem";
 const CC_RD_TWO_BID_GEM_CODE = "cc-rd-two-bid-gem";
 const ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE = "estb-house-allotment-d-type";
 const ESTB_DEPARTURE_REJOINING_CODE = "estb-departure-rejoining-report";
+const STORES_STATIONERY_INDENT_CODE = "stores-stationery-indent";
 
 const GEN_ADMIN_TEMPLATE = {
   code: GEN_ADMIN_TEMPLATE_CODE,
@@ -600,6 +601,25 @@ const CC_RD_TWO_BID_GEM_TEMPLATE = {
   approvalStages: [],
 };
 
+const STORES_STATIONERY_INDENT_TEMPLATE = {
+  code: STORES_STATIONERY_INDENT_CODE,
+  title: "Stationery Indent Form",
+  description: "Stores & Purchase stationery indent form for IIT Patna employees.",
+  section: "stores",
+  fields: [
+    { label: "Name of the Employee", name: "employeeName", type: "text", required: true },
+    { label: "Emp. No.", name: "empNo", type: "text", required: false },
+    { label: "Designation", name: "designation", type: "text", required: false },
+    { label: "Dept./Section/Centre", name: "deptSection", type: "text", required: false },
+    { label: "Date", name: "date", type: "date", required: false },
+    { label: "Signature of HOD/HOS/DEAN", name: "hodSignature", type: "text", required: false },
+    { label: "Signature of the Employee", name: "employeeSignature", type: "text", required: false },
+    { label: "Stationery In-charge", name: "stationaryIncharge", type: "text", required: false },
+    // itemsJson stored as a JSON array of {particulars, quantity, remarks} objects
+  ],
+  approvalStages: [],
+};
+
 const getGenAdminTemplate = async (req, res) => {
   try {
     let template = await FormTemplate.findOne({ code: GEN_ADMIN_TEMPLATE_CODE });
@@ -957,6 +977,14 @@ const getComputerCenterRDTwoBidGeMTemplate = async (req, res) => {
   }
 };
 
+const getStoresStationeryIndentTemplate = async (req, res) => {
+  try {
+    let t = await FormTemplate.findOne({ code: STORES_STATIONERY_INDENT_CODE });
+    if (!t) t = await FormTemplate.create({ ...STORES_STATIONERY_INDENT_TEMPLATE, createdBy: req.user.id });
+    return res.json(t);
+  } catch (e) { console.error(e); return res.status(500).json({ message: "Failed to load stores stationery indent template" }); }
+};
+
 // @desc Create new form template
 const createTemplate = async (req, res) => {
   try {
@@ -1145,13 +1173,22 @@ const getAllTemplates = async (req, res) => {
         createdBy: req.user?.id || null,
       });
     }
+
    let estbHouseAllotmentTemplate = await FormTemplate.findOne({ code: ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE });
-if (!estbHouseAllotmentTemplate) {
-  await FormTemplate.create({
-    ...ESTB_HOUSE_ALLOTMENT_D_TYPE_TEMPLATE,
-    createdBy: req.user?.id || null,
-  });
-}
+    if (!estbHouseAllotmentTemplate) {
+      await FormTemplate.create({
+        ...ESTB_HOUSE_ALLOTMENT_D_TYPE_TEMPLATE,
+        createdBy: req.user?.id || null,
+      });
+    }
+
+    let storesStationeryIndentTemplate = await FormTemplate.findOne({ code: STORES_STATIONERY_INDENT_CODE });
+    if (!storesStationeryIndentTemplate) {
+      await FormTemplate.create({
+        ...STORES_STATIONERY_INDENT_TEMPLATE,
+        createdBy: req.user?.id || null,
+      });
+    }
 
     const templates = await FormTemplate.find()
       .populate("createdBy", "name email")
@@ -1201,4 +1238,5 @@ module.exports = {
   getComputerCenterProxyLdapRequestTemplate,
   getComputerCenterRDRecommendationGeMTemplate,
   getComputerCenterRDTwoBidGeMTemplate,
+  getStoresStationeryIndentTemplate,
 };

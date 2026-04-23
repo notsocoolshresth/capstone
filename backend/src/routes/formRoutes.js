@@ -23,6 +23,7 @@ const {
   getComputerCenterProxyLdapRequestTemplate,
   getComputerCenterRDRecommendationGeMTemplate,
   getComputerCenterRDTwoBidGeMTemplate,
+  getStoresStationeryIndentTemplate,
 } = require("../controllers/formController");
 
 const protect = require("../middleware/authMiddleware");
@@ -88,6 +89,7 @@ router.get("/computer-center-ldap-account-request/template", protect, getCompute
 
 // Establishment – Departure & Re-joining Report
 router.get("/estb-departure-rejoining-report/template", protect, getEstbDepartureRejoiningTemplate);
+
 router.get("/estb-house-allotment-d-type/template", protect, getEstbHouseAllotmentDTypeTemplate);
 
 // Finance - Recommendation cum Sanction Sheet for Purchase (Double Bid Tendering - INR)
@@ -114,5 +116,7 @@ router.get("/computer-center-rd-recommendation-gem/template", protect, getComput
 
 // Computer Center - R&D cum CC Recommendation for Two-Bid Purchase through GeM
 router.get("/computer-center-rd-two-bid-gem/template", protect, getComputerCenterRDTwoBidGeMTemplate);
+
+router.get("/stores-stationery-indent/template", protect, getStoresStationeryIndentTemplate);
 
 module.exports = router;

@@ -29,6 +29,7 @@ import ComputerCenterProxyLdapAccountRequestForm from "./forms/cc/ComputerCenter
 import ComputerCenterRDRecommendationGeM from "./forms/cc/CCRDRecommendationDirectPurchaseGeM";
 import ComputerCenterRDTwoBidGeM from "./forms/cc/CCRDRecommendationTwoBidPurchaseGeM";
 import FinanceProcurementRecommendationSanctionForm from "./forms/fin/RecommendationCumSanctionSheetForPurchaseDoubleBidInrForm";
+import StoresStationeryIndentForm from "./forms/snp/StoreStationeryIndentForm";
 import Submissions from "./pages/Submissions";
 import Approvals from "./pages/Approvals";
 import PrivateRoute from "./components/PrivateRoute";
@@ -214,25 +215,25 @@ function App() {
           }
         />
        <Route
-  path="/forms/estb-departure-rejoining-report"
-  element={
-    <PrivateRoute>
-      <Layout>
-        <EstbDepartureRejoiningReportForm />
-      </Layout>
-    </PrivateRoute>
-  }
-/>
-<Route
-  path="/forms/estb-house-allotment-d-type"
-  element={
-    <PrivateRoute>
-      <Layout>
-        <EstbHouseAllotmentDTypeForm />
-      </Layout>
-    </PrivateRoute>
-  }
-/>
+          path="/forms/estb-departure-rejoining-report"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EstbDepartureRejoiningReportForm />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/estb-house-allotment-d-type"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EstbHouseAllotmentDTypeForm />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/forms/cc-faculty-performa"
           element={
@@ -309,6 +310,16 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <ComputerCenterRDTwoBidGeM />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/stores-stationery-indent"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <StoresStationeryIndentForm />
               </Layout>
             </PrivateRoute>
           }
