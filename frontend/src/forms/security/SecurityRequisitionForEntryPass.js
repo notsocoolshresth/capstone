@@ -15,6 +15,10 @@ import {
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../services/api";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 const TEMPLATE_SLUG = "/forms/security-entry-pass/template";
 
@@ -100,14 +104,18 @@ const SecurityRequisitionForEntryPass = () => {
     setSaving(true); setError(""); setSuccess("");
     try {
       if (!templateId) { setError("Form template not ready."); return null; }
-      const payload = { templateId, responses: values };
-      if (location.state?.parentSubmissionId) payload.parentSubmissionId = location.state.parentSubmissionId;
+      const { payload } = await prepareSubmissionPayload({
+        templateId,
+        templateSlug: TEMPLATE_SLUG,
+        responses: values,
+        parentSubmissionId: location.state?.parentSubmissionId,
+      });
       const { data } = await API.post("/submissions", payload);
       setSubmissionId(data._id);
       setSuccess("Form submitted successfully.");
       return data._id;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save form.");
+      setError(getErrorMessage(err, "Failed to save form."));
       return null;
     } finally { setSaving(false); }
   };

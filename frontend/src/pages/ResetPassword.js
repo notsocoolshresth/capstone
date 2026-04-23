@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { TextField, Button, Box } from "@mui/material";
+import { TextField, Button, Box, Alert } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import {
+  getErrorMessage,
+  validateResetPasswordForm,
+} from "../utils/formValidation";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -11,6 +15,7 @@ const ResetPassword = () => {
     password: "",
     confirmPassword: ""
   });
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,23 +23,20 @@ const ResetPassword = () => {
       ...prev,
       [name]: value
     }));
+    setError("");
   };
 
   const handleResetPassword = async () => {
-    if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
     try {
+      const payload = validateResetPasswordForm(form);
       const res = await API.post(`/auth/reset-password/${token}`, {
-        password: form.password
+        password: payload.password
       });
 
       alert(res.data.message || "Password reset successfully!");
       navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Invalid or expired token");
+      setError(getErrorMessage(err, "Invalid or expired token"));
     }
   };
 
@@ -57,6 +59,8 @@ const ResetPassword = () => {
         onChange={handleChange}
         fullWidth
       />
+
+      {error && <Alert severity="error">{error}</Alert>}
 
       <Button variant="contained" size="large" onClick={handleResetPassword} fullWidth sx={{ py: 1.25 }}>
         Update Password

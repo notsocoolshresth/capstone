@@ -10,6 +10,10 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import { formContainerSx, formPaperSx } from "../../utils/formStyles";
+import {
+  getErrorMessage,
+  prepareMultipartSubmission,
+} from "../../utils/formValidation";
 
 const TEMPLATE_SLUG = "/forms/computer-center-faculty-performa/template";
 
@@ -137,46 +141,27 @@ const ComputerCenterFacultyPerformaForm = () => {
     });
   };
 
-  const buildFormData = () => {
-    const fd = new FormData();
-    fd.append("templateId", templateId);
-
-    // Append all scalar fields
-    const scalarFields = [
-      "name", "designation", "department", "phoneOffice", "iitpEmailId",
-      "personalWebpage", "researchAreas", "otherInterests", "coursesTaught",
-      "noOfPhDStudents", "professionalExperience", "awardsHonours",
-      "memberOfProfessionalBodies", "books", "publications", "presentations",
-    ];
-    scalarFields.forEach((f) => fd.append(`responses[${f}]`, values[f] || ""));
-
-    // Append HAQ as JSON string
-    fd.append(
-      "responses[highestAcademicQualification]",
-      JSON.stringify(values.highestAcademicQualification)
-    );
-
-    // Append photo file if present
-    if (values.photo instanceof File) {
-      fd.append("responses[photo]", values.photo);
-    }
-
-    return fd;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setSaving(true);
     try {
-      const res = await API.post("/submissions", buildFormData(), {
+      const { formData } = await prepareMultipartSubmission({
+        templateId,
+        templateSlug: TEMPLATE_SLUG,
+        responses: values,
+        fileFields: {
+          photo: values.photo instanceof File ? values.photo : null,
+        },
+      });
+      const res = await API.post("/submissions", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setSubmissionId(res.data._id);
       setSuccess("Form submitted successfully!");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit form");
+      setError(getErrorMessage(err, "Failed to submit form"));
     } finally {
       setSaving(false);
     }

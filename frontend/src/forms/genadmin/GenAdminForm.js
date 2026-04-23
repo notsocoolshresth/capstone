@@ -12,6 +12,10 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import { standardInputSx, standardInputProps, formContainerSx, formPaperSx } from "../../utils/formStyles";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 const initialValues = {
   salutation: "Dr.",
@@ -80,21 +84,18 @@ const GenAdminForm = () => {
         return null;
       }
 
-      const payload = {
+      const { payload } = await prepareSubmissionPayload({
         templateId,
+        templateSlug: "/forms/general-administration-self-declaration/template",
         responses: values,
-      };
-
-      if (location.state?.parentSubmissionId) {
-        payload.parentSubmissionId = location.state.parentSubmissionId;
-      }
-
+        parentSubmissionId: location.state?.parentSubmissionId,
+      });
       const { data } = await API.post("/submissions", payload);
       setSubmissionId(data._id);
       setSuccess("Declaration submitted successfully. It is visible in My Submissions.");
       return data._id;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save declaration.");
+      setError(getErrorMessage(err, "Failed to save declaration."));
       return null;
     } finally {
       setSaving(false);
@@ -120,7 +121,7 @@ const GenAdminForm = () => {
       const blobUrl = window.URL.createObjectURL(
         new Blob([response.data], { type: "application/pdf" })
       );
-      const pdfWindow = window.open(blobUrl, "_blank", "noopener,noreferrer");
+      window.open(blobUrl, "_blank", "noopener,noreferrer");
 
     //   if (!pdfWindow) {
     //     setError("Popup was blocked. Please allow popups and try again.");

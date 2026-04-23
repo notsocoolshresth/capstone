@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Button } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../../services/api";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 // table cell style
 const cell = {
@@ -22,6 +26,8 @@ const input = {
 const ComputerCenterRDRecommendationGeM = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const [values, setValues] = useState({
     projectNo: "",
@@ -54,6 +60,7 @@ const ComputerCenterRDRecommendationGeM = () => {
   });
 
   const handleChange = (key) => (e) => {
+    setError("");
     setValues({ ...values, [key]: e.target.value });
   };
 
@@ -69,11 +76,22 @@ const ComputerCenterRDRecommendationGeM = () => {
   }, [location.state]);
 
   const handleSubmit = async () => {
-    await API.post("/submissions", {
-      templateId: "cc-rd-recommendation-gem",
-      responses: values,
-    });
-    navigate("/submissions");
+    setSubmitting(true);
+    setError("");
+    try {
+      const { payload } = await prepareSubmissionPayload({
+        templateId: "cc-rd-recommendation-gem",
+        templateSlug: "/forms/computer-center-rd-recommendation-gem/template",
+        responses: values,
+        parentSubmissionId: location.state?.parentSubmissionId,
+      });
+      await API.post("/submissions", payload);
+      navigate("/submissions");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to submit form. Please try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -333,9 +351,15 @@ const ComputerCenterRDRecommendationGeM = () => {
         </Typography>
 
         {/* SUBMIT */}
+        {error && (
+          <Typography color="error" mt={3}>
+            {error}
+          </Typography>
+        )}
+
         <Box mt={3} textAlign="right">
-          <Button variant="contained" onClick={handleSubmit}>
-            Submit
+          <Button variant="contained" onClick={handleSubmit} disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit"}
           </Button>
         </Box>
 

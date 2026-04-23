@@ -16,6 +16,10 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import API from "../services/api";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../utils/formValidation";
 
 const FormFill = () => {
   const { templateId } = useParams();
@@ -74,20 +78,16 @@ const FormFill = () => {
     setSubmitting(true);
     setError("");
     try {
-      const responses = { ...values };
-      const body = {
+      const { payload } = await prepareSubmissionPayload({
+        template,
         templateId: template._id,
-        responses,
-      };
-      if (parentSubmissionId) {
-        body.parentSubmissionId = parentSubmissionId;
-      }
-      await API.post("/submissions", body);
+        responses: values,
+        parentSubmissionId,
+      });
+      await API.post("/submissions", payload);
       navigate("/submissions");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to submit form. Please try again."
-      );
+      setError(getErrorMessage(err, "Failed to submit form. Please try again."));
     } finally {
       setSubmitting(false);
     }

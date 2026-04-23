@@ -7,7 +7,6 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Divider,
   Table,
   TableBody,
   TableRow,
@@ -15,6 +14,10 @@ import {
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../services/api";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 const TEMPLATE_SLUG = "/forms/security-pass-renewal/template";
 
@@ -37,6 +40,7 @@ const lineInputSx = {
 const inlineField = { variant: "standard", size: "small", InputLabelProps: { shrink: false } };
 
 // ── InlineField must be module-level to avoid focus loss on re-render ─────────
+// eslint-disable-next-line no-unused-vars
 const InlineField = ({ label, fieldName, placeholder, minWidth = 160, flex, sublabel, values, onChange }) => (
   <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 0.5 }}>
     {label && (
@@ -95,14 +99,18 @@ const SecurityPassRenewal = () => {
     setSaving(true); setError(""); setSuccess("");
     try {
       if (!templateId) { setError("Form template not ready."); return null; }
-      const payload = { templateId, responses: values };
-      if (location.state?.parentSubmissionId) payload.parentSubmissionId = location.state.parentSubmissionId;
+      const { payload } = await prepareSubmissionPayload({
+        templateId,
+        templateSlug: TEMPLATE_SLUG,
+        responses: values,
+        parentSubmissionId: location.state?.parentSubmissionId,
+      });
       const { data } = await API.post("/submissions", payload);
       setSubmissionId(data._id);
       setSuccess("Form submitted successfully.");
       return data._id;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save form.");
+      setError(getErrorMessage(err, "Failed to save form."));
       return null;
     } finally { setSaving(false); }
   };

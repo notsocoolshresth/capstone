@@ -10,7 +10,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(cors());
 
 // Routes

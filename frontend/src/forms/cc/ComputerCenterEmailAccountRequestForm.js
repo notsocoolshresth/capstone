@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Typography, Button, TextField, InputBase, CircularProgress } from "@mui/material";
+import { Box, Container, Typography, Button, InputBase, CircularProgress } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../../services/api";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 const FORM_CODE = "cc-email-account-request";
+const TEMPLATE_SLUG = "/forms/computer-center-email-account-request/template";
 
 /* ── shared cell input ── */
 const CellInput = ({ name, value, onChange, type = "text", multiline = false, rows = 1 }) => (
@@ -132,15 +137,16 @@ const ComputerCenterEmailAccountRequestForm = () => {
     setSubmitting(true);
     setError("");
     try {
-      const body = {
-        templateId,           // real MongoDB ObjectId fetched from DB
+      const { payload } = await prepareSubmissionPayload({
+        templateId,
+        templateSlug: TEMPLATE_SLUG,
         responses: { ...values },
-      };
-      if (parentSubmissionId) body.parentSubmissionId = parentSubmissionId;
-      await API.post("/submissions", body);
+        parentSubmissionId,
+      });
+      await API.post("/submissions", payload);
       navigate("/submissions");
     } catch (err) {
-      setError(err.response?.data?.message || "Submission failed. Please try again.");
+      setError(getErrorMessage(err, "Submission failed. Please try again."));
     } finally {
       setSubmitting(false);
     }

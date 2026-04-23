@@ -1,13 +1,18 @@
 const { parse } = require("csv-parse/sync");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/User");
+const {
+  EMAIL_REGEX,
+  IITP_EMAIL_REGEX,
+  normalizeEmail,
+  sanitizeString,
+} = require("../utils/inputValidation");
 
 const ALLOWED_ROLES = ["Faculty", "HOD", "Dean", "Director", "Admin"];
+const PASSWORD_MIN_LENGTH = 6;
 const jobs = new Map();
 
-// @desc Bulk import users from CSV
 const bulkImport = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No CSV file uploaded" });
@@ -21,7 +26,7 @@ const bulkImport = async (req, res) => {
       trim: true,
     });
   } catch (err) {
-    return res.status(400).json({ message: "Invalid CSV format: " + err.message });
+    return res.status(400).json({ message: `Invalid CSV format: ${err.message}` });
   }
 
   if (!rows || rows.length === 0) {
@@ -41,7 +46,6 @@ const bulkImport = async (req, res) => {
   res.status(202).json({ jobId, total: rows.length });
 };
 
-// @desc SSE stream for bulk import progress
 const bulkImportStream = (req, res) => {
   const job = jobs.get(req.params.jobId);
   if (!job) {
@@ -62,37 +66,46 @@ const bulkImportStream = (req, res) => {
   }
 
   if (job.done) {
-    const created = job.results.filter((r) => r.status === "success").length;
-    const failed = job.results.filter((r) => r.status === "failed").length;
+    const created = job.results.filter((result) => result.status === "success").length;
+    const failed = job.results.filter((result) => result.status === "failed").length;
     send({ type: "complete", created, failed, total: job.total });
     return res.end();
   }
 
   const listener = (result) => {
     if (result === null) {
-      const created = job.results.filter((r) => r.status === "success").length;
-      const failed = job.results.filter((r) => r.status === "failed").length;
+      const created = job.results.filter((item) => item.status === "success").length;
+      const failed = job.results.filter((item) => item.status === "failed").length;
       send({ type: "complete", created, failed, total: job.total });
       res.end();
-    } else {
-      send({ type: "row", ...result, total: job.total });
+      return;
     }
+
+    send({ type: "row", ...result, total: job.total });
   };
 
   job.listeners.add(listener);
   req.on("close", () => job.listeners.delete(listener));
 };
 
-// @desc Change user role
 const changeRole = async (req, res) => {
-  const { email, role } = req.body;
+  const email = normalizeEmail(req.body?.email);
+  const role = sanitizeString(req.body?.role, { preserveNewlines: false });
 
   if (!email || !role) {
     return res.status(400).json({ message: "Both email and role are required" });
   }
 
+  if (!EMAIL_REGEX.test(email)) {
+    return res.status(400).json({ message: "Please enter a valid email address." });
+  }
+
+  if (!IITP_EMAIL_REGEX.test(email)) {
+    return res.status(403).json({ message: "Only @iitp.ac.in email addresses are allowed." });
+  }
+
   const normalizedRole = ALLOWED_ROLES.find(
-    (r) => r.toLowerCase() === String(role).trim().toLowerCase()
+    (allowedRole) => allowedRole.toLowerCase() === role.toLowerCase()
   );
 
   if (!normalizedRole) {
@@ -101,7 +114,7 @@ const changeRole = async (req, res) => {
     });
   }
 
-  const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(404).json({ message: `No user found with email "${email}"` });
   }
@@ -121,45 +134,60 @@ const changeRole = async (req, res) => {
   });
 };
 
-// Internal: process CSV rows
 async function processRows(jobId, rows) {
   const job = jobs.get(jobId);
   if (!job) return;
 
-  for (let i = 0; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i += 1) {
     const row = rows[i];
     const rowNum = i + 1;
-    const result = { row: rowNum, name: row.name || "", email: row.email || "" };
+    const name = sanitizeString(row?.name, { preserveNewlines: false });
+    const email = normalizeEmail(row?.email);
+    const role = sanitizeString(row?.role, { preserveNewlines: false });
+    const password =
+      sanitizeString(row?.password, { preserveNewlines: false }) || "password";
+    const result = {
+      row: rowNum,
+      name: name || "",
+      email: email || "",
+    };
 
     try {
-      const { name, email, role } = row;
-      const password = row.password && row.password.trim() ? row.password.trim() : "password";
-
       if (!name || !email) {
-        throw new Error("Missing required fields – CSV columns must be: name, email, role");
+        throw new Error("Missing required fields - CSV columns must be: name, email, role");
       }
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (!EMAIL_REGEX.test(email)) {
         throw new Error("Invalid email format");
       }
 
+      if (!IITP_EMAIL_REGEX.test(email)) {
+        throw new Error("Only @iitp.ac.in email addresses are allowed");
+      }
+
       const normalizedRole = role
-        ? ALLOWED_ROLES.find((r) => r.toLowerCase() === String(role).trim().toLowerCase())
+        ? ALLOWED_ROLES.find(
+            (allowedRole) => allowedRole.toLowerCase() === role.toLowerCase()
+          )
         : "Faculty";
 
       if (role && !normalizedRole) {
         throw new Error(`Invalid role "${role}". Allowed values: ${ALLOWED_ROLES.join(", ")}`);
       }
 
-      const existing = await User.findOne({ email: email.toLowerCase().trim() });
+      if (password.length < PASSWORD_MIN_LENGTH) {
+        throw new Error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
+      }
+
+      const existing = await User.findOne({ email });
       if (existing) {
         throw new Error("A user with this email already exists");
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
       await User.create({
-        name: name.trim(),
-        email: email.toLowerCase().trim(),
+        name,
+        email,
         password: hashedPassword,
         role: normalizedRole || "Faculty",
       });
@@ -171,7 +199,7 @@ async function processRows(jobId, rows) {
     }
 
     job.results.push(result);
-    job.processed++;
+    job.processed += 1;
 
     for (const listener of job.listeners) {
       listener(result);

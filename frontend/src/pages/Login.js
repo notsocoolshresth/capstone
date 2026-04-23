@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import { TextField, Button, Typography, Box, Alert } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
+import { getErrorMessage, validateLoginForm } from "../utils/formValidation";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,23 +11,26 @@ const Login = () => {
     email: "",
     password: ""
   });
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
+    setError("");
   };
 
   const handleLogin = async () => {
     try {
-      const res = await API.post("/auth/login", form);
+      const payload = validateLoginForm(form);
+      const res = await API.post("/auth/login", payload);
 
       localStorage.setItem("token", res.data.token);
 
       navigate("/dashboard");
     } catch (err) {
-      alert("Invalid credentials");
+      setError(getErrorMessage(err, "Invalid credentials"));
     }
   };
 
@@ -48,6 +52,7 @@ const Login = () => {
         onChange={handleChange}
         fullWidth
       />
+      {error && <Alert severity="error">{error}</Alert>}
       <Button variant="contained" size="large" onClick={handleLogin} fullWidth sx={{ py: 1.25 }}>
         Sign In
       </Button>

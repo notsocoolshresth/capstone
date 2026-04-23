@@ -1,17 +1,26 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Box } from "@mui/material";
+import { TextField, Button, Typography, Box, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
 import API from "../services/api";
+import {
+  getErrorMessage,
+  validateForgotPasswordForm,
+} from "../utils/formValidation";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleForgotPassword = async () => {
     try {
-      await API.post("/auth/forgot-password", { email });
-      alert("Password reset link sent to your email!");
+      const payload = validateForgotPasswordForm(email);
+      await API.post("/auth/forgot-password", payload);
+      setSuccess("If the account exists, a reset link has been generated.");
+      setError("");
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong. Please try again.");
+      setSuccess("");
+      setError(getErrorMessage(err, "Something went wrong. Please try again."));
     }
   };
 
@@ -24,9 +33,15 @@ const ForgotPassword = () => {
         label="Email"
         type="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          setError("");
+          setSuccess("");
+        }}
         fullWidth
       />
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">{success}</Alert>}
       <Button variant="contained" size="large" onClick={handleForgotPassword} fullWidth sx={{ py: 1.25 }}>
         Send Reset Link
       </Button>

@@ -16,6 +16,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import {
+  getErrorMessage,
+  validateApprovalPayload,
+} from "../utils/formValidation";
 
 const Approvals = () => {
   const [items, setItems] = useState([]);
@@ -62,15 +66,13 @@ const Approvals = () => {
     if (!activeId) return;
     setSaving(true);
     try {
-      await API.post(`/submissions/${activeId}/act`, {
-        action,
-        comment,
-      });
+      const payload = validateApprovalPayload({ action, comment });
+      await API.post(`/submissions/${activeId}/act`, payload);
       setDialogOpen(false);
       setActiveId(null);
       await load();
-    } catch {
-      alert("Failed to update submission");
+    } catch (err) {
+      alert(getErrorMessage(err, "Failed to update submission"));
     } finally {
       setSaving(false);
     }

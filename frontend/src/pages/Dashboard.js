@@ -8,19 +8,19 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    const fetchUser = async () => {
+      try {
+        const res = await API.get("/auth/me");
+        setUser(res.data);
+      } catch (err) {
+        alert("Unauthorized");
+        localStorage.removeItem("token");
+        navigate("/");
+      }
+    };
 
-  const fetchUser = async () => {
-    try {
-      const res = await API.get("/auth/me");
-      setUser(res.data);
-    } catch (err) {
-      alert("Unauthorized");
-      localStorage.removeItem("token");
-      navigate("/");
-    }
-  };
+    fetchUser();
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

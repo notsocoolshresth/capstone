@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import { TextField, Button, Typography, Box, Alert } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
+import { getErrorMessage, validateRegisterForm } from "../utils/formValidation";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -11,21 +12,24 @@ const Register = () => {
     email: "",
     password: ""
   });
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
+    setError("");
   };
 
   const handleRegister = async () => {
     try {
-      await API.post("/auth/register", form);
+      const payload = validateRegisterForm(form);
+      await API.post("/auth/register", payload);
       alert("Registration successful! Please login.");
       navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      setError(getErrorMessage(err, "Registration failed"));
     }
   };
 
@@ -55,6 +59,8 @@ const Register = () => {
           onChange={handleChange}
           fullWidth
         />
+
+        {error && <Alert severity="error">{error}</Alert>}
 
         <Button variant="contained" onClick={handleRegister}>
           Register

@@ -6,12 +6,24 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 const User = require("../models/User");
+const {
+  EMAIL_REGEX,
+  IITP_EMAIL_REGEX,
+  normalizeEmail,
+  sanitizeString,
+} = require("../utils/inputValidation");
 
 const ALLOWED_ROLES = ["Faculty", "HOD", "Dean", "Director"];
 const ALLOWED_EMAIL_DOMAIN = "@iitp.ac.in";
+const PASSWORD_MIN_LENGTH = 6;
 
 const isAllowedInstitutionalEmail = (email) =>
-  typeof email === "string" && email.trim().toLowerCase().endsWith(ALLOWED_EMAIL_DOMAIN);
+  typeof email === "string" && IITP_EMAIL_REGEX.test(email);
+
+const normalizeRole = (role) =>
+  role
+    ? ALLOWED_ROLES.find((allowedRole) => allowedRole.toLowerCase() === String(role).toLowerCase())
+    : undefined;
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -26,23 +38,35 @@ const transporter = nodemailer.createTransport({
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const name = sanitizeString(req.body?.name, { preserveNewlines: false });
+    const normalizedEmail = normalizeEmail(req.body?.email);
+    const password = sanitizeString(req.body?.password, {
+      preserveNewlines: false,
+    });
+    const normalizedRole = normalizeRole(
+      sanitizeString(req.body?.role, { preserveNewlines: false })
+    );
 
-    if (!name || !email || !password) {
+    if (!name || !normalizedEmail || !password) {
       return res.status(400).json({ message: "Name, email, and password are required" });
     }
 
-    if (!isAllowedInstitutionalEmail(normalizedEmail)) {
-      return res.status(403).json({ message: "Only @iitp.ac.in email addresses are allowed" });
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({ message: "Please enter a valid email address" });
     }
 
-    const normalizedRole = role
-      ? ALLOWED_ROLES.find((r) => r.toLowerCase() === String(role).toLowerCase())
-      : undefined;
+    if (!isAllowedInstitutionalEmail(normalizedEmail)) {
+      return res.status(403).json({ message: `Only ${ALLOWED_EMAIL_DOMAIN} email addresses are allowed` });
+    }
 
-    if (role && !normalizedRole) {
+    if (req.body?.role && !normalizedRole) {
       return res.status(400).json({ message: "Invalid role", allowedRoles: ALLOWED_ROLES });
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      return res
+        .status(400)
+        .json({ message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters` });
     }
 
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -69,11 +93,21 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(req.body?.email);
+    const password = sanitizeString(req.body?.password, {
+      preserveNewlines: false,
+    });
+
+    if (!normalizedEmail || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({ message: "Please enter a valid email address" });
+    }
 
     if (!isAllowedInstitutionalEmail(normalizedEmail)) {
-      return res.status(403).json({ message: "Only @iitp.ac.in email addresses are allowed" });
+      return res.status(403).json({ message: `Only ${ALLOWED_EMAIL_DOMAIN} email addresses are allowed` });
     }
 
     const user = await User.findOne({ email: normalizedEmail });
@@ -141,7 +175,19 @@ const generateProfilePdf = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = normalizeEmail(req.body?.email);
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: "Please enter a valid email address" });
+    }
+
+    if (!isAllowedInstitutionalEmail(email)) {
+      return res.status(403).json({ message: `Only ${ALLOWED_EMAIL_DOMAIN} email addresses are allowed` });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -179,6 +225,20 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
+    const password = sanitizeString(req.body?.password, {
+      preserveNewlines: false,
+    });
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      return res
+        .status(400)
+        .json({ message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters` });
+    }
+
     const hashedToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
 
     const user = await User.findOne({
@@ -190,7 +250,7 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     user.resetToken = undefined;
     user.resetTokenExpire = undefined;
@@ -204,14 +264,25 @@ const resetPassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const currentPassword = sanitizeString(req.body?.currentPassword, {
+      preserveNewlines: false,
+    });
+    const newPassword = sanitizeString(req.body?.newPassword, {
+      preserveNewlines: false,
+    });
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ message: "Current password and new password are required" });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: "New password must be at least 6 characters" });
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      return res
+        .status(400)
+        .json({ message: `New password must be at least ${PASSWORD_MIN_LENGTH} characters` });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: "New password must be different from the current password" });
     }
 
     const user = await User.findById(req.user.id);

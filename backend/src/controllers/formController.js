@@ -1,4 +1,5 @@
 const FormTemplate = require("../models/FormTemplate");
+const { sanitizeTemplatePayload } = require("../utils/inputValidation");
 
 const GEN_ADMIN_TEMPLATE_CODE = "gen-admin";
 const GEN_ADMIN_VEHICLE_REQUISITION_CODE = "gen-admin-vehicle-requisition-transport";
@@ -959,7 +960,9 @@ const getComputerCenterRDTwoBidGeMTemplate = async (req, res) => {
 // @desc Create new form template
 const createTemplate = async (req, res) => {
   try {
-    const { title, description, fields, approvalStages } = req.body;
+    const { title, description, fields, approvalStages } = sanitizeTemplatePayload(
+      req.body
+    );
 
     if (!title || !fields || fields.length === 0) {
       return res.status(400).json({ message: "Title and fields required" });

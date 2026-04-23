@@ -11,6 +11,10 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import { formContainerSx, formPaperSx } from "../../utils/formStyles";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 const TEMPLATE_SLUG = "/forms/computer-center-faculty-declaration/template";
 
@@ -131,14 +135,16 @@ const ComputerCenterFacultyDeclarationForm = () => {
     setSuccess("");
     setSaving(true);
     try {
-      const res = await API.post("/submissions", {
+      const { payload } = await prepareSubmissionPayload({
         templateId,
+        templateSlug: TEMPLATE_SLUG,
         responses: values,
       });
+      const res = await API.post("/submissions", payload);
       setSubmissionId(res.data._id);
       setSuccess("Form submitted successfully!");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit form");
+      setError(getErrorMessage(err, "Failed to submit form"));
     } finally {
       setSaving(false);
     }

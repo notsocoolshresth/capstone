@@ -11,6 +11,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import {
+  getErrorMessage,
+  validateChangePasswordForm,
+} from "../utils/formValidation";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -31,35 +35,16 @@ const ChangePassword = () => {
     e.preventDefault();
     setResult(null);
 
-    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
-      setResult({ severity: "error", message: "All fields are required." });
-      return;
-    }
-    if (form.newPassword.length < 6) {
-      setResult({ severity: "error", message: "New password must be at least 6 characters." });
-      return;
-    }
-    if (form.newPassword !== form.confirmPassword) {
-      setResult({ severity: "error", message: "New passwords do not match." });
-      return;
-    }
-    if (form.currentPassword === form.newPassword) {
-      setResult({ severity: "error", message: "New password must be different from the current one." });
-      return;
-    }
-
     setLoading(true);
     try {
-      const res = await API.post("/auth/change-password", {
-        currentPassword: form.currentPassword,
-        newPassword: form.newPassword,
-      });
+      const payload = validateChangePasswordForm(form);
+      const res = await API.post("/auth/change-password", payload);
       setResult({ severity: "success", message: res.data.message });
       setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
       setResult({
         severity: "error",
-        message: err.response?.data?.message || "Failed to change password. Please try again.",
+        message: getErrorMessage(err, "Failed to change password. Please try again."),
       });
     } finally {
       setLoading(false);

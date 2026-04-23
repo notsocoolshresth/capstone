@@ -7,12 +7,14 @@ import {
   TextField,
   Button,
   CircularProgress,
-  Divider,
-  Grid,
   Input
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../../services/api";
+import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
 
 const CCRDRecommendationTwoBidPurchaseGeM = () => {
   const navigate = useNavigate();
@@ -101,26 +103,29 @@ const CCRDRecommendationTwoBidPurchaseGeM = () => {
     setSubmitting(true);
     setError("");
     try {
-      const body = {
+      const { payload } = await prepareSubmissionPayload({
         templateId: templateId || "cc-rd-two-bid-gem",
+        templateSlug: "/forms/computer-center-rd-two-bid-gem/template",
         responses: { ...values },
-      };
-      if (parentSubmissionId) body.parentSubmissionId = parentSubmissionId;
-      await API.post("/submissions", body);
+        parentSubmissionId,
+      });
+      await API.post("/submissions", payload);
       navigate("/submissions");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit form. Please try again.");
+      setError(getErrorMessage(err, "Failed to submit form. Please try again."));
     } finally {
       setSubmitting(false);
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const sectionLabel = (text) => (
     <Typography variant="subtitle1" fontWeight={700} sx={{ mt: 3, mb: 0.5, color: "#1976d2" }}>
       {text}
     </Typography>
   );
 
+  // eslint-disable-next-line no-unused-vars
   const F = (label, name, type = "text", multiline = false) => (
     <TextField
       key={name}
@@ -386,6 +391,11 @@ const CCRDRecommendationTwoBidPurchaseGeM = () => {
       </Typography>
 
     </Paper>
+    {error && (
+      <Typography color="error" sx={{ mt: 2 }}>
+        {error}
+      </Typography>
+    )}
     <Box mt={2} display="flex" justifyContent="space-between">
     <Button variant="text" onClick={() => navigate("/forms")}>
       Back to Forms

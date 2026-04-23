@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const multer = require("multer");
 
 const {
@@ -10,29 +9,38 @@ const {
   actOnSubmission,
   generateSubmissionPDF,
 } = require("../controllers/submissionController");
-
 const protect = require("../middleware/authMiddleware");
 
-// Multer — memory storage so we get req.file.buffer
-const upload = multer({ storage: multer.memoryStorage() });
+const router = express.Router();
 
-// Submit form (multipart so photo file can be uploaded)
-router.post("/", protect, upload.single("responses[photo]"), submitForm);
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (String(file.mimetype || "").toLowerCase().startsWith("image/")) {
+      cb(null, true);
+      return;
+    }
 
-// Get my submissions (history)
+    cb(new Error("Only image uploads are allowed"));
+  },
+});
+
+function handleSubmissionUpload(req, res, next) {
+  upload.single("responses[photo]")(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    next();
+  });
+}
+
+router.post("/", protect, handleSubmissionUpload, submitForm);
 router.get("/me", protect, getMySubmissions);
-
-// List submissions pending approval for current user
-// NOTE: must be defined BEFORE /:id to avoid "pending" being treated as an id
 router.get("/pending/list", protect, getPendingApprovals);
-
-// Get single submission (for view / edit-as-new)
 router.get("/:id", protect, getSubmissionById);
-
-// Approve / reject a submission
 router.post("/:id/act", protect, actOnSubmission);
-
-// Download submission PDF
 router.get("/:id/pdf", protect, generateSubmissionPDF);
 
 module.exports = router;

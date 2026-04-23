@@ -11,6 +11,10 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import {
+  getErrorMessage,
+  prepareSubmissionPayload,
+} from "../../utils/formValidation";
+import {
   formContainerSx,
   formPaperSx,
   standardInputProps,
@@ -129,21 +133,18 @@ const SecurityUndertakingRegardingWorkerConductAndResponsibility = () => {
 
       const { signature: ignoredSignature, ...responses } = values;
 
-      const payload = {
+      const { payload } = await prepareSubmissionPayload({
         templateId,
+        templateSlug: TEMPLATE_SLUG,
         responses,
-      };
-
-      if (location.state?.parentSubmissionId) {
-        payload.parentSubmissionId = location.state.parentSubmissionId;
-      }
-
+        parentSubmissionId: location.state?.parentSubmissionId,
+      });
       const { data } = await API.post("/submissions", payload);
       setSubmissionId(data._id);
       setSuccess("Form submitted successfully. It is visible in My Submissions.");
       return data._id;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save form.");
+      setError(getErrorMessage(err, "Failed to save form."));
       return null;
     } finally {
       setSaving(false);

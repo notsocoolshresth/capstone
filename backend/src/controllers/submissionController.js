@@ -25,6 +25,14 @@ const { renderComputerCenterProxyLdapAccountRequestPdf } = require("../forms/cc/
 const { renderCCRDRecommendationDirectPurchaseGeMPdf } = require("../forms/cc/CCRDRecommendationDirectPurchaseGeM");
 const { renderCCRDRecommendationTwoBidPurchaseGeMPdf } = require("../forms/cc/CCRDRecommendationTwoBidPurchaseGeM");
 const { getResponseValue } = require("../utils/pdfUtils");
+const {
+  OBJECT_ID_REGEX,
+  extractSubmissionPayload,
+  isPlainObject,
+  sanitizeAndValidateResponses,
+  sanitizeComment,
+  validateUploadedImage,
+} = require("../utils/inputValidation");
 
 const GEN_ADMIN_TEMPLATE_CODE = "gen-admin";
 const GEN_ADMIN_VEHICLE_REQUISITION_CODE = "gen-admin-vehicle-requisition-transport";
@@ -52,16 +60,18 @@ const CC_RD_TWO_BID_GEM_CODE = "cc-rd-two-bid-gem";
 // Body: { templateId, responses, parentSubmissionId? }
 const submitForm = async (req, res) => {
   try {
-    const { templateId, responses, parentSubmissionId } = req.body;
+    const { templateId, responses, parentSubmissionId } = extractSubmissionPayload(
+      req.body
+    );
 
-    if (!templateId || !responses) {
+    if (!templateId || !isPlainObject(responses)) {
       return res
         .status(400)
         .json({ message: "Template and responses required" });
     }
 
     // Ensure template exists — templateId may be a MongoDB ObjectId OR a template code string
-    const isObjectId = /^[a-f\d]{24}$/i.test(String(templateId));
+    const isObjectId = OBJECT_ID_REGEX.test(String(templateId));
     const template = isObjectId
       ? await FormTemplate.findById(templateId)
       : await FormTemplate.findOne({ code: templateId });
@@ -69,10 +79,27 @@ const submitForm = async (req, res) => {
       return res.status(404).json({ message: "Template not found" });
     }
 
+    const { sanitizedResponses, errors } = sanitizeAndValidateResponses(
+      template,
+      responses
+    );
+    const fileErrors = validateUploadedImage(req.file);
+
+    if (errors.length > 0 || fileErrors.length > 0) {
+      return res.status(400).json({
+        message: errors[0] || fileErrors[0],
+        errors: [...errors, ...fileErrors],
+      });
+    }
+
     let version = 1;
     let parentSubmission = null;
 
     if (parentSubmissionId) {
+      if (!OBJECT_ID_REGEX.test(String(parentSubmissionId))) {
+        return res.status(400).json({ message: "Invalid parent submission id" });
+      }
+
       const parent = await FormSubmission.findOne({
         _id: parentSubmissionId,
         submittedBy: req.user.id,
@@ -92,7 +119,7 @@ const submitForm = async (req, res) => {
     const submissionData = {
       template: template._id,  // always store the real ObjectId
       submittedBy: req.user.id,
-      responses: new Map(Object.entries(responses)),
+      responses: new Map(Object.entries(sanitizedResponses)),
       status: "submitted",
       version,
       parentSubmission,
@@ -199,11 +226,18 @@ const getPendingApprovals = async (req, res) => {
 // Body: { action: "approved" | "rejected", comment? }
 const actOnSubmission = async (req, res) => {
   try {
-    const { action, comment } = req.body;
+    const action = String(req.body?.action || "").trim();
+    const { value: comment, error: commentError } = sanitizeComment(
+      req.body?.comment
+    );
     const role = req.user.role;
 
     if (!["approved", "rejected"].includes(action)) {
       return res.status(400).json({ message: "Invalid action" });
+    }
+
+    if (commentError) {
+      return res.status(400).json({ message: commentError });
     }
 
     const submission = await FormSubmission.findById(req.params.id);

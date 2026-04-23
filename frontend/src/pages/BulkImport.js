@@ -24,6 +24,11 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import {
+  getErrorMessage,
+  validateChangeRoleForm,
+  validateCsvFile,
+} from "../utils/formValidation";
 
 const BulkImport = () => {
   const navigate = useNavigate();
@@ -53,28 +58,20 @@ const BulkImport = () => {
     e.preventDefault();
     setRoleResult(null);
 
-    if (!roleEmail.trim()) {
-      setRoleResult({ severity: "error", message: "Email is required." });
-      return;
-    }
-    if (!roleValue) {
-      setRoleResult({ severity: "error", message: "Please select a new role." });
-      return;
-    }
-
     setRoleLoading(true);
     try {
-      const res = await API.patch("/admin/change-role", {
-        email: roleEmail.trim(),
-        role: roleValue
+      const payload = validateChangeRoleForm({
+        email: roleEmail,
+        role: roleValue,
       });
+      const res = await API.patch("/admin/change-role", payload);
       setRoleResult({ severity: "success", message: res.data.message });
       setRoleEmail("");
       setRoleValue("");
     } catch (err) {
       setRoleResult({
         severity: "error",
-        message: err.response?.data?.message || "Failed to update role. Please try again."
+        message: getErrorMessage(err, "Failed to update role. Please try again.")
       });
     } finally {
       setRoleLoading(false);
@@ -106,19 +103,21 @@ const BulkImport = () => {
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
     if (!selected) return;
-    setFile(selected);
-    setUploadError("");
-    setResults([]);
-    setSummary(null);
-    setProgress({ processed: 0, total: 0 });
+    try {
+      validateCsvFile(selected);
+      setFile(selected);
+      setUploadError("");
+      setResults([]);
+      setSummary(null);
+      setProgress({ processed: 0, total: 0 });
+    } catch (err) {
+      setFile(null);
+      setUploadError(getErrorMessage(err, "Please select a valid CSV file."));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setUploadError("Please select a CSV file.");
-      return;
-    }
 
     // Close any existing SSE connection
     if (eventSourceRef.current) {
@@ -131,6 +130,7 @@ const BulkImport = () => {
     setSummary(null);
 
     try {
+      validateCsvFile(file);
       const formData = new FormData();
       formData.append("file", file);
 
@@ -181,9 +181,7 @@ const BulkImport = () => {
       };
     } catch (err) {
       setUploading(false);
-      setUploadError(
-        err.response?.data?.message || "Failed to upload file. Please try again."
-      );
+      setUploadError(getErrorMessage(err, "Failed to upload file. Please try again."));
     }
   };
 
