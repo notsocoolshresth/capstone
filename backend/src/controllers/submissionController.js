@@ -18,6 +18,7 @@ const { renderComputerCenterRequestingLdapAccountPdf } = require("../forms/cc/Co
 const { renderEstbDepartureRejoiningReportPdf } = require("../forms/estb/renderEstbDepartureRejoiningReportPdf");
 const { renderEstbHouseAllotmentDTypePdf } = require("../forms/estb/renderEstbHouseAllotmentDTypePdf");
 const { renderFinanceProcurementRecommendationSanctionPdf } = require("../forms/fin/RecommendationCumSanctionSheetForPurchaseDoubleBidInr");
+const { renderFinanceTravellingAllowanceBillPdf } = require("../forms/fin/TravellingAllowanceBillForm");
 const { renderComputerCenterFacultyPerformaPdf } = require("../forms/cc/ComputerCenterFacultyPerformaForm");
 const { renderComputerCenterFacultyDeclarationPdf } = require("../forms/cc/ComputerCenterFacultyDeclarationForm");
 const { renderComputerCenterEmailAccountRequestPdf } = require("../forms/cc/ComputerCenterEmailAccountRequestForm");
@@ -25,7 +26,7 @@ const { renderComputerCenterProxyLdapAccountRequestPdf } = require("../forms/cc/
 const { renderCCRDRecommendationDirectPurchaseGeMPdf } = require("../forms/cc/CCRDRecommendationDirectPurchaseGeM");
 const { renderCCRDRecommendationTwoBidPurchaseGeMPdf } = require("../forms/cc/CCRDRecommendationTwoBidPurchaseGeM");
 const { renderStoresStationeryIndentPdf } = require("../forms/snp/StoreStationeryIndentPdf");
-const { getResponseValue } = require("../utils/pdfUtils");
+const { renderStructuredTemplatePdf } = require("../forms/generic/renderStructuredTemplatePdf");
 const {
   OBJECT_ID_REGEX,
   extractSubmissionPayload,
@@ -50,6 +51,7 @@ const CC_LDAP_ACCOUNT_REQUEST_CODE = "cc-ldap-account-request";
 const ESTB_DEPARTURE_REJOINING_CODE = "estb-departure-rejoining-report";
 const ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE = "estb-house-allotment-d-type";
 const FINANCE_PROCUREMENT_RECOMMENDATION_SANCTION_CODE = "finance-procurement-recommendation-sanction-double-bid-inr";
+const FINANCE_TRAVELLING_ALLOWANCE_BILL_CODE = "finance-travelling-allowance-bill";
 const CC_FACULTY_PERFORMA_CODE = "cc-faculty-performa";
 const CC_FACULTY_DECLARATION_CODE = "cc-faculty-declaration";
 const CC_EMAIL_ACCOUNT_REQUEST_CODE = "cc-email-account-request";
@@ -331,6 +333,8 @@ const generateSubmissionPDF = async (req, res) => {
 const isEstbHouseAllotmentDType = templateCode === ESTB_HOUSE_ALLOTMENT_D_TYPE_CODE;
     const isFinanceProcurementRecommendationSanction =
       templateCode === FINANCE_PROCUREMENT_RECOMMENDATION_SANCTION_CODE;
+    const isFinanceTravellingAllowanceBill =
+      templateCode === FINANCE_TRAVELLING_ALLOWANCE_BILL_CODE;
     const isComputerCenterFacultyPerforma = templateCode === CC_FACULTY_PERFORMA_CODE;
     const isComputerCenterFacultyDeclaration = templateCode === CC_FACULTY_DECLARATION_CODE;
     const isComputerCenterEmailAccountRequest = templateCode === CC_EMAIL_ACCOUNT_REQUEST_CODE;
@@ -345,6 +349,7 @@ const isEstbHouseAllotmentDType = templateCode === ESTB_HOUSE_ALLOTMENT_D_TYPE_C
         : isGenAdminVehicleRequisition
         ? 52
         : isFinanceProcurementRecommendationSanction ||
+          isFinanceTravellingAllowanceBill ||
           isSecurityRequisitionForVehicleSticker ||
           isSecurityVehicleStickerRequitionForMarriedScholar
         
@@ -389,6 +394,8 @@ const isEstbHouseAllotmentDType = templateCode === ESTB_HOUSE_ALLOTMENT_D_TYPE_C
       renderEstbHouseAllotmentDTypePdf(doc, submission);
     }else if (isFinanceProcurementRecommendationSanction) {
       renderFinanceProcurementRecommendationSanctionPdf(doc, submission);
+    } else if (isFinanceTravellingAllowanceBill) {
+      renderFinanceTravellingAllowanceBillPdf(doc, submission);
     } else if (isComputerCenterFacultyPerforma) {
       renderComputerCenterFacultyPerformaPdf(doc, submission);
     } else if (isComputerCenterFacultyDeclaration) {
@@ -405,54 +412,7 @@ const isEstbHouseAllotmentDType = templateCode === ESTB_HOUSE_ALLOTMENT_D_TYPE_C
       renderStoresStationeryIndentPdf(doc, submission);
     }
     else {
-      // Header (logo placeholder + institute title)
-      doc
-        .fontSize(22)
-        .font("Helvetica-Bold")
-        .text("Indian Institute of Technology Patna", { align: "center" });
-      doc
-        .fontSize(12)
-        .font("Helvetica")
-        .text("Online Forms Portal", { align: "center" });
-      doc.moveDown(0.5);
-      doc
-        .moveTo(50, doc.y)
-        .lineTo(doc.page.width - 50, doc.y)
-        .stroke();
-      doc.moveDown(1);
-
-      doc
-        .fontSize(16)
-        .font("Helvetica-Bold")
-        .text(submission.template.title || "Form Submission", {
-          align: "center",
-        });
-      doc.moveDown();
-
-      doc.fontSize(10).font("Helvetica");
-      doc.text(`Submitted by: ${submission.submittedBy.name}`);
-      doc.text(`Email: ${submission.submittedBy.email}`);
-      doc.text(`Role: ${submission.submittedBy.role}`);
-      doc.text(`Submitted at: ${submission.createdAt.toLocaleString()}`);
-      doc.text(`Status: ${submission.status}`);
-      doc.moveDown();
-
-      doc.fontSize(12).font("Helvetica-Bold").text("Responses", { underline: true });
-      doc.moveDown(0.5);
-
-      const fields = submission.template.fields || [];
-      fields.forEach((field) => {
-        const value = getResponseValue(submission.responses, field.name);
-        doc
-          .font("Helvetica-Bold")
-          .text(`${field.label}: `, { continued: true });
-        doc.font("Helvetica").text(
-          value !== undefined && value !== null && String(value).trim() !== ""
-            ? String(value)
-            : "-"
-        );
-        doc.moveDown(0.3);
-      });
+      renderStructuredTemplatePdf(doc, submission);
     }
 
     if (submission.approvals && submission.approvals.length > 0) {

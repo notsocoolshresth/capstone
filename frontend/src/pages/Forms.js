@@ -37,10 +37,12 @@ const SECTION_TITLES = {
   fac: "Faculty Affairs",
   snp: "Stores and Purchase",
   cc: "Computer Center",
-  fin:"Finance",
+  fin: "Finance",
   estb: "Establishment",
-  security:"Security",
-  hr: "Human Resources",
+  security: "Security",
+  guesthouse: "Guest House",
+  medical: "Medical",
+  hr: "Other Forms",
 };
 
 const resolveSection = (template) => {
@@ -64,8 +66,12 @@ const resolveSection = (template) => {
     return "cc";
   }
 
+  if (section.includes("fac") || section.includes("faculty")) return "fac";
+  if (section === "guesthouse" || section.includes("guest house") || code.includes("guest-house")) return "guesthouse";
+  if (section.includes("medical") || code.includes("medical")) return "medical";
   if (section.includes("finance") || code.includes("finance")) return "fin";
-if (section.includes("estb") || code.includes("estb") || section.includes("establishment")) return "estb";  if (section.includes("security") || code.includes("security")) return "security";
+  if (section.includes("estb") || code.includes("estb") || section.includes("establishment")) return "estb";
+  if (section.includes("security") || code.includes("security")) return "security";
 
   if (section.includes("store") || code.includes("store") || code.includes("purchase") || code.includes("snp")) return "snp";
   if (section === "fin" || section.includes("finance") || code.includes("finance")) return "fin";
@@ -123,9 +129,11 @@ const Forms = () => {
       fac: [],
       snp: [],
       cc: [],
-      fin:[],
+      fin: [],
       estb: [],
-      security:[],
+      security: [],
+      guesthouse: [],
+      medical: [],
       hr: [],
     }
   );
@@ -262,6 +270,9 @@ const Forms = () => {
       {renderSection("fin")}
       {renderSection("estb")}
       {renderSection("security")}
+      {renderSection("guesthouse")}
+      {renderSection("medical")}
+      {renderSection("hr")}
 
     </Container>
   );

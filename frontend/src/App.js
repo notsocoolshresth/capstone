@@ -29,6 +29,7 @@ import ComputerCenterProxyLdapAccountRequestForm from "./forms/cc/ComputerCenter
 import ComputerCenterRDRecommendationGeM from "./forms/cc/CCRDRecommendationDirectPurchaseGeM";
 import ComputerCenterRDTwoBidGeM from "./forms/cc/CCRDRecommendationTwoBidPurchaseGeM";
 import FinanceProcurementRecommendationSanctionForm from "./forms/fin/RecommendationCumSanctionSheetForPurchaseDoubleBidInrForm";
+import TravelAllowanceBillForm from "./forms/fin/TravellingAllowanceBillForm";
 import StoresStationeryIndentForm from "./forms/snp/StoreStationeryIndentForm";
 import Submissions from "./pages/Submissions";
 import Approvals from "./pages/Approvals";
@@ -205,6 +206,16 @@ function App() {
           }
         />
         <Route
+          path="/forms/finance-travelling-allowance-bill"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <TravelAllowanceBillForm />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/forms/computer_center_for_requesting_ldap_account_creation_of_project_staff__temporary_staff_1733997767"
           element={
             <PrivateRoute>
@@ -320,6 +331,16 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <StoresStationeryIndentForm />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forms/:templateRef"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <FormFill />
               </Layout>
             </PrivateRoute>
           }
