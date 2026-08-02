@@ -1,5 +1,36 @@
 const mongoose = require("mongoose");
 
+const tableColumnSchema = new mongoose.Schema(
+  {
+    label: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["text", "number", "date", "textarea", "select", "radio", "file", "email"],
+      default: "text",
+    },
+    required: {
+      type: Boolean,
+      default: false,
+    },
+    options: {
+      type: [String],
+      default: [],
+    },
+    width: {
+      type: String,
+      default: "",
+    },
+  },
+  { _id: false }
+);
+
 const fieldSchema = new mongoose.Schema({
   label: {
     type: String,
@@ -11,7 +42,7 @@ const fieldSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["text", "number", "date", "textarea", "select", "radio", "file", "email"],
+    enum: ["text", "number", "date", "textarea", "select", "radio", "file", "email", "table"],
     default: "text",
   },
   required: {
@@ -20,6 +51,30 @@ const fieldSchema = new mongoose.Schema({
   },
   options: {
     type: [String],
+    default: [],
+  },
+  section: {
+    type: String,
+    default: "",
+  },
+  placeholder: {
+    type: String,
+    default: "",
+  },
+  helperText: {
+    type: String,
+    default: "",
+  },
+  minRows: {
+    type: Number,
+    default: 0,
+  },
+  defaultRows: {
+    type: Number,
+    default: 0,
+  },
+  columns: {
+    type: [tableColumnSchema],
     default: [],
   },
 });
@@ -39,6 +94,11 @@ const formTemplateSchema = new mongoose.Schema(
     },
     description: {
       type: String,
+      default: "",
+    },
+    section: {
+      type: String,
+      trim: true,
       default: "",
     },
     fields: [fieldSchema],

@@ -14,9 +14,10 @@ const {
   getSecurityVehicleStickerRequitionForMarriedScholarTemplate,
   getSecurityUndertakingRegardingWorkerConductAndResponsibilityTemplate,
   getComputerCenterLdapAccountRequestTemplate,
-  getEstbDepartureRejoiningTemplate,
+ getEstbDepartureRejoiningTemplate,
  getEstbHouseAllotmentDTypeTemplate,
  getFinanceProcurementRecommendationSanctionTemplate,
+  getFinanceTravellingAllowanceBillTemplate,
   getComputerCenterFacultyPerformaTemplate,
   getComputerCenterFacultyDeclarationTemplate,
   getComputerCenterEmailAccountRequestTemplate,
@@ -24,6 +25,7 @@ const {
   getComputerCenterRDRecommendationGeMTemplate,
   getComputerCenterRDTwoBidGeMTemplate,
   getStoresStationeryIndentTemplate,
+  getHardcodedCatalogTemplate,
 } = require("../controllers/formController");
 
 const protect = require("../middleware/authMiddleware");
@@ -99,6 +101,12 @@ router.get(
   getFinanceProcurementRecommendationSanctionTemplate
 );
 
+router.get(
+  "/finance-travelling-allowance-bill/template",
+  protect,
+  getFinanceTravellingAllowanceBillTemplate
+);
+
 // Computer Center - Faculty Performa Form
 router.get("/computer-center-faculty-performa/template", protect, getComputerCenterFacultyPerformaTemplate);
 
@@ -118,5 +126,6 @@ router.get("/computer-center-rd-recommendation-gem/template", protect, getComput
 router.get("/computer-center-rd-two-bid-gem/template", protect, getComputerCenterRDTwoBidGeMTemplate);
 
 router.get("/stores-stationery-indent/template", protect, getStoresStationeryIndentTemplate);
+router.get("/:templateCode/template", protect, getHardcodedCatalogTemplate);
 
 module.exports = router;

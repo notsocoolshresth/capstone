@@ -217,6 +217,10 @@ function isValidDateInput(value) {
 }
 
 function getFieldMaxLength(field = {}) {
+  if (field.type === "table") {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
   if (field.type === "textarea") {
     return 4000;
   }
@@ -408,10 +412,31 @@ function sanitizeTemplatePayload(payload = {}) {
           name: sanitizeString(field?.name, { preserveNewlines: false }),
           type: sanitizeString(field?.type, { preserveNewlines: false }),
           required: Boolean(field?.required),
+          section: sanitizeString(field?.section, { preserveNewlines: false }),
+          placeholder: sanitizeString(field?.placeholder, { preserveNewlines: false }),
+          helperText: sanitizeString(field?.helperText, { preserveNewlines: true }),
+          minRows: Number.isInteger(field?.minRows) ? field.minRows : 0,
+          defaultRows: Number.isInteger(field?.defaultRows) ? field.defaultRows : 0,
           options: Array.isArray(field?.options)
             ? field.options
                 .map((option) => sanitizeString(option, { preserveNewlines: false }))
                 .filter(Boolean)
+            : [],
+          columns: Array.isArray(field?.columns)
+            ? field.columns
+                .map((column) => ({
+                  label: sanitizeString(column?.label, { preserveNewlines: false }),
+                  name: sanitizeString(column?.name, { preserveNewlines: false }),
+                  type: sanitizeString(column?.type, { preserveNewlines: false }),
+                  required: Boolean(column?.required),
+                  width: sanitizeString(column?.width, { preserveNewlines: false }),
+                  options: Array.isArray(column?.options)
+                    ? column.options
+                        .map((option) => sanitizeString(option, { preserveNewlines: false }))
+                        .filter(Boolean)
+                    : [],
+                }))
+                .filter((column) => column.label && column.name)
             : [],
         }))
         .filter((field) => field.label && field.name)
@@ -420,6 +445,7 @@ function sanitizeTemplatePayload(payload = {}) {
   return {
     title: sanitizeString(payload.title, { preserveNewlines: false }),
     description: sanitizeString(payload.description, { preserveNewlines: true }),
+    section: sanitizeString(payload.section, { preserveNewlines: false }),
     fields,
     approvalStages: Array.isArray(payload.approvalStages)
       ? payload.approvalStages

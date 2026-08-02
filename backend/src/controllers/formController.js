@@ -1,5 +1,9 @@
 const FormTemplate = require("../models/FormTemplate");
 const { sanitizeTemplatePayload } = require("../utils/inputValidation");
+const {
+  MISSING_HARDCODED_TEMPLATES,
+  getHardcodedTemplateDefinition,
+} = require("../catalog/hardcodedTemplateCatalog");
 
 const GEN_ADMIN_TEMPLATE_CODE = "gen-admin";
 const GEN_ADMIN_VEHICLE_REQUISITION_CODE = "gen-admin-vehicle-requisition-transport";
@@ -14,6 +18,7 @@ const SECURITY_UNDERTAKING_REGARDING_WORKER_CONDUCT_AND_RESPONSIBILITY_CODE =
   "security_undertaking_regarding_worker_conduct_and_responsibility";
 const CC_LDAP_ACCOUNT_REQUEST_CODE = "cc-ldap-account-request";
 const FINANCE_PROCUREMENT_RECOMMENDATION_SANCTION_CODE = "finance-procurement-recommendation-sanction-double-bid-inr";
+const FINANCE_TRAVELLING_ALLOWANCE_BILL_CODE = "finance-travelling-allowance-bill";
 const CC_FACULTY_PERFORMA_CODE = "cc-faculty-performa";
 const CC_FACULTY_DECLARATION_CODE = "cc-faculty-declaration";
 const CC_EMAIL_ACCOUNT_REQUEST_CODE = "cc-email-account-request";
@@ -398,6 +403,69 @@ const FINANCE_PROCUREMENT_RECOMMENDATION_SANCTION_TEMPLATE = {
     { label: "Member 2", name: "member2", type: "text", required: false },
     { label: "Member 3", name: "member3", type: "text", required: false },
     { label: "Member 4", name: "member4", type: "text", required: false },
+  ],
+  approvalStages: [],
+};
+
+const FINANCE_TRAVELLING_ALLOWANCE_BILL_TEMPLATE = {
+  code: FINANCE_TRAVELLING_ALLOWANCE_BILL_CODE,
+  title: "Travelling Allowance Bill",
+  description: "Travelling allowance bill for official visits, seminars, and conferences attended.",
+  section: "fin",
+  fields: [
+    { label: "Claimant Name", name: "claimantName", type: "text", required: true },
+    { label: "Employee Number", name: "empNo", type: "text", required: true },
+    { label: "Designation", name: "designation", type: "text", required: true },
+    { label: "Account Head", name: "accountHead", type: "text", required: false },
+    { label: "Department / Section", name: "departmentSection", type: "text", required: true },
+    { label: "Bank Account Number", name: "bankAccountNo", type: "text", required: false },
+    { label: "Grade Pay", name: "gradePay", type: "text", required: false },
+    { label: "Contact Number", name: "contactNo", type: "text", required: false },
+    { label: "IFSC Code", name: "ifsc", type: "text", required: false },
+    { label: "Journey Details", name: "journeys", type: "text", required: true },
+    { label: "Local Conveyance Details", name: "localConveyances", type: "text", required: false },
+    { label: "Registration Fee", name: "registrationFee", type: "text", required: false },
+    { label: "Hotel / Lodging Charges", name: "hotelLodgingCharges", type: "text", required: false },
+    { label: "VISA Fee", name: "visaFee", type: "text", required: false },
+    { label: "Food Charges", name: "foodCharges", type: "text", required: false },
+    { label: "Insurance Premium", name: "insurancePremium", type: "text", required: false },
+    { label: "Other Charges", name: "otherCharges", type: "text", required: false },
+    { label: "Purpose of Journey", name: "purposeOfJourney", type: "textarea", required: true },
+    { label: "Total Amount Claimed", name: "totalAmountClaimed", type: "text", required: false },
+    { label: "Advance Taken", name: "advanceTaken", type: "text", required: false },
+    { label: "Net Amount Claimed", name: "officeNetAmountClaimed", type: "text", required: false },
+    { label: "Rail / Air / Bus Fare", name: "officeRailFare", type: "text", required: false },
+    { label: "Road Mileages", name: "officeRoadMileage", type: "text", required: false },
+    { label: "Local Conveyance Amount", name: "officeLocalConveyance", type: "text", required: false },
+    { label: "Food Charges Amount", name: "officeFoodCharges", type: "text", required: false },
+    { label: "Accommodation Charges Amount", name: "officeAccommodationCharges", type: "text", required: false },
+    { label: "Other Charges Amount", name: "officeOtherCharges", type: "text", required: false },
+    { label: "Total Admissible Amount", name: "officeTotalAdmissibleAmount", type: "text", required: false },
+    { label: "Less Advance Paid to DTA", name: "lessAdvanceDta", type: "text", required: false },
+    { label: "Less Advance Paid to Claimant", name: "lessAdvanceClaimant", type: "text", required: false },
+    { label: "Net Amount in Words", name: "netAmountWords", type: "textarea", required: false },
+    {
+      label: "Treated as Guest of a Government / Institution",
+      name: "treatedAsGuest",
+      type: "radio",
+      required: false,
+      options: ["Yes", "No"],
+    },
+    {
+      label: "Allowed Free Boarding and/or Lodging",
+      name: "freeBoardingLodging",
+      type: "radio",
+      required: false,
+      options: ["Yes", "No"],
+    },
+    {
+      label: "Availed Free Transport",
+      name: "availedFreeTransport",
+      type: "radio",
+      required: false,
+      options: ["Yes", "No"],
+    },
+    { label: "Claim Date", name: "claimDate", type: "date", required: true },
   ],
   approvalStages: [],
 };
@@ -873,6 +941,24 @@ const getFinanceProcurementRecommendationSanctionTemplate = async (req, res) => 
   }
 };
 
+const getFinanceTravellingAllowanceBillTemplate = async (req, res) => {
+  try {
+    let template = await FormTemplate.findOne({ code: FINANCE_TRAVELLING_ALLOWANCE_BILL_CODE });
+
+    if (!template) {
+      template = await FormTemplate.create({
+        ...FINANCE_TRAVELLING_ALLOWANCE_BILL_TEMPLATE,
+        createdBy: req.user.id,
+      });
+    }
+
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load finance travelling allowance bill template" });
+  }
+};
+
 const getComputerCenterFacultyPerformaTemplate = async (req, res) => {
   try {
     let template = await FormTemplate.findOne({ code: CC_FACULTY_PERFORMA_CODE });
@@ -985,10 +1071,73 @@ const getStoresStationeryIndentTemplate = async (req, res) => {
   } catch (e) { console.error(e); return res.status(500).json({ message: "Failed to load stores stationery indent template" }); }
 };
 
+const templatesMatchDefinition = (template, definition) => {
+  if (!template || !definition) {
+    return false;
+  }
+
+  return (
+    String(template.title || "") === String(definition.title || "") &&
+    String(template.description || "") === String(definition.description || "") &&
+    String(template.section || "") === String(definition.section || "") &&
+    JSON.stringify(template.fields || []) === JSON.stringify(definition.fields || []) &&
+    JSON.stringify(template.approvalStages || []) === JSON.stringify(definition.approvalStages || [])
+  );
+};
+
+const ensureTemplateFromDefinition = async (definition, userId) => {
+  if (!definition?.code) {
+    return null;
+  }
+
+  let template = await FormTemplate.findOne({ code: definition.code });
+
+  if (!template) {
+    return FormTemplate.create({
+      ...definition,
+      createdBy: userId || null,
+    });
+  }
+
+  if (!templatesMatchDefinition(template, definition)) {
+    template.title = definition.title;
+    template.description = definition.description;
+    template.section = definition.section || "";
+    template.fields = definition.fields || [];
+    template.approvalStages = definition.approvalStages || [];
+    await template.save();
+  }
+
+  return template;
+};
+
+const ensureMissingHardcodedTemplates = async (userId) => {
+  for (const definition of MISSING_HARDCODED_TEMPLATES) {
+    await ensureTemplateFromDefinition(definition, userId);
+  }
+};
+
+const getHardcodedCatalogTemplate = async (req, res) => {
+  try {
+    const templateCode = String(req.params.templateCode || "").trim();
+    const definition = getHardcodedTemplateDefinition(templateCode);
+
+    if (!definition) {
+      return res.status(404).json({ message: "Template not found" });
+    }
+
+    const template = await ensureTemplateFromDefinition(definition, req.user?.id || null);
+    return res.json(template);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load template" });
+  }
+};
+
 // @desc Create new form template
 const createTemplate = async (req, res) => {
   try {
-    const { title, description, fields, approvalStages } = sanitizeTemplatePayload(
+    const { title, description, section, fields, approvalStages } = sanitizeTemplatePayload(
       req.body
     );
 
@@ -999,6 +1148,7 @@ const createTemplate = async (req, res) => {
     const template = await FormTemplate.create({
       title,
       description,
+      section,
       fields,
       approvalStages: Array.isArray(approvalStages) ? approvalStages : [],
       createdBy: req.user.id,
@@ -1122,6 +1272,16 @@ const getAllTemplates = async (req, res) => {
       });
     }
 
+    let financeTravellingAllowanceBillTemplate = await FormTemplate.findOne({
+      code: FINANCE_TRAVELLING_ALLOWANCE_BILL_CODE,
+    });
+    if (!financeTravellingAllowanceBillTemplate) {
+      await FormTemplate.create({
+        ...FINANCE_TRAVELLING_ALLOWANCE_BILL_TEMPLATE,
+        createdBy: req.user?.id || null,
+      });
+    }
+
         // Ensure Computer Center Faculty Performa template exists
     let ccFacultyPerformaTemplate = await FormTemplate.findOne({ code: CC_FACULTY_PERFORMA_CODE });
     if (!ccFacultyPerformaTemplate) {
@@ -1190,6 +1350,8 @@ const getAllTemplates = async (req, res) => {
       });
     }
 
+    await ensureMissingHardcodedTemplates(req.user?.id || null);
+
     const templates = await FormTemplate.find()
       .populate("createdBy", "name email")
       .sort({ createdAt: -1 });
@@ -1232,6 +1394,7 @@ module.exports = {
   getEstbDepartureRejoiningTemplate,
   getEstbHouseAllotmentDTypeTemplate,
   getFinanceProcurementRecommendationSanctionTemplate,
+  getFinanceTravellingAllowanceBillTemplate,
   getComputerCenterFacultyPerformaTemplate,
   getComputerCenterFacultyDeclarationTemplate,
   getComputerCenterEmailAccountRequestTemplate,
@@ -1239,4 +1402,5 @@ module.exports = {
   getComputerCenterRDRecommendationGeMTemplate,
   getComputerCenterRDTwoBidGeMTemplate,
   getStoresStationeryIndentTemplate,
+  getHardcodedCatalogTemplate,
 };
